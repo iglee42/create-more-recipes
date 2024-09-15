@@ -33,9 +33,13 @@ public class FanCustomCategory extends ProcessingViaFanCategory.MultiOutput<Cust
     }
 
     public void setRecipe(IRecipeLayoutBuilder builder, CustomFanRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 48).setBackground(getRenderedSlot(), -1, -1).addIngredients(recipe.getIngredients().get(1));
+        builder.addSlot(RecipeIngredientRole.INPUT, 21, 48).setBackground(getRenderedSlot(), -1, -1).addIngredients(recipe.getIngredients().get(0));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 48).setBackground(getRenderedSlot(), -1, -1).addItemStack(getResultItem(recipe));
         builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addIngredients(VanillaTypes.ITEM_STACK,recipe.getProcessingBlock().stream().map(ItemStack::new).toList());
+        recipe.getProcessingBlock().stream().filter(b->!b.defaultBlockState().getFluidState().isEmpty()).forEach(b->{
+           builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addIngredients(Ingredient.of(b.defaultBlockState().getFluidState().getType().getBucket().asItem()));
+           builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addFluidStack(b.defaultBlockState().getFluidState().getType(),1000);
+        });
     }
 
     @Override
