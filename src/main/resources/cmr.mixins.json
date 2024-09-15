@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "cmr.refmap.json",
   "mixins": [
+    "AirCurrentMixin"
   ],
-  "client": [],
+  "client": [
+    "AirFlowParticleMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
