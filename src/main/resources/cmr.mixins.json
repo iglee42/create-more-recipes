@@ -5,7 +5,14 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "cmr.refmap.json",
   "mixins": [
-    "AirCurrentMixin"
+    "AirCurrentMixin",
+    "BasinRecipeMixin",
+    "HeatConditionMixin",
+    "MysteriousItemConversionCategoryMixin",
+    "jei.BasinCategoryMixin",
+    "jei.CommonCategoryMixin",
+    "jei.MixingCategoryMixin",
+    "jei.PackingCategoryMixin"
   ],
   "client": [
     "AirFlowParticleMixin"

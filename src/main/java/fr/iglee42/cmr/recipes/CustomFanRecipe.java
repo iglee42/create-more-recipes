@@ -1,17 +1,16 @@
-package fr.iglee42.cmr;
+package fr.iglee42.cmr.recipes;
 
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.foundation.fluid.FluidIngredient;
+import fr.iglee42.cmr.CMRRecipeTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
@@ -34,12 +33,12 @@ public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanW
 
     public List<Block> getProcessingBlock(){
         List<Block> blocks = new ArrayList<>();
-         if (ingredients.size() > 1) {
-             for (ItemStack item : ingredients.get(1).getItems()) {
-                 if (!(item.getItem() instanceof BlockItem bi)) continue;
-                 blocks.add(bi.getBlock());
-             }
-         }
+        if (ingredients.size() > 1) {
+            for (ItemStack item : ingredients.get(1).getItems()) {
+                if (!(item.getItem() instanceof BlockItem bi)) continue;
+                blocks.add(bi.getBlock());
+            }
+        }
         for (FluidIngredient fluid : fluidIngredients){
             blocks.addAll(fluid.getMatchingFluidStacks().stream().map(f->f.getFluid().defaultFluidState().createLegacyBlock().getBlock()).toList());
         }
@@ -52,6 +51,11 @@ public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanW
 
     protected int getMaxOutputCount() {
         return 12;
+    }
+
+    @Override
+    protected int getMaxFluidInputCount() {
+        return 1;
     }
 
     public static class CustomFanWrapper extends RecipeWrapper {

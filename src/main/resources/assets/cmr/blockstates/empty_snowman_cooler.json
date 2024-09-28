@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "cmr:block/snowman_cooler/block"
+    }
+  }
+}

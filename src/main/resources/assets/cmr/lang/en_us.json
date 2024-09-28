@@ -1,4 +1,15 @@
 {
+  "itemGroup.cmr": "Create More Recipes",
+
   "create.recipe.fan_custom.fan": "Fan behind a block",
-  "create.recipe.fan_custom": "Fan with custom block"
+  "create.recipe.fan_custom": "Fan with custom block",
+  "create.recipe.heat_requirement.cold": "Cooled",
+  "create.recipe.heat_requirement.freeze": "Frozen",
+
+  "block.cmr.snowman_cooler": "Snowman Cooler",
+  "block.cmr.empty_snowman_cooler": "Empty Snowman Cooler",
+
+  "item.cmr.frozen_cake": "Frozen Cake",
+  "item.cmr.frozen_cake_base": "Frozen Cake Base"
+
 }

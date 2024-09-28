@@ -9,7 +9,7 @@ import com.simibubi.create.compat.jei.category.ProcessingViaFanCategory;
 import com.simibubi.create.compat.jei.category.animations.AnimatedKinetics;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.element.GuiGameElement;
-import fr.iglee42.cmr.CustomFanRecipe;
+import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -35,7 +35,7 @@ public class FanCustomCategory extends ProcessingViaFanCategory.MultiOutput<Cust
     public void setRecipe(IRecipeLayoutBuilder builder, CustomFanRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 21, 48).setBackground(getRenderedSlot(), -1, -1).addIngredients(recipe.getIngredients().get(0));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 48).setBackground(getRenderedSlot(), -1, -1).addItemStack(getResultItem(recipe));
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addIngredients(VanillaTypes.ITEM_STACK,recipe.getProcessingBlock().stream().map(ItemStack::new).toList());
+        if (!recipe.getProcessingBlock().isEmpty())builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addIngredients(VanillaTypes.ITEM_STACK,recipe.getProcessingBlock().stream().map(ItemStack::new).toList());
         recipe.getProcessingBlock().stream().filter(b->!b.defaultBlockState().getFluidState().isEmpty()).forEach(b->{
            builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addIngredients(Ingredient.of(b.defaultBlockState().getFluidState().getType().getBucket().asItem()));
            builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addFluidStack(b.defaultBlockState().getFluidState().getType(),1000);
@@ -52,7 +52,7 @@ public class FanCustomCategory extends ProcessingViaFanCategory.MultiOutput<Cust
         matrixStack.mulPose(Axis.YP.rotationDegrees(22.5F));
         AnimatedKinetics.defaultBlockElement(AllPartialModels.ENCASED_FAN_INNER).rotateBlock(180.0, 0.0, (double)(AnimatedKinetics.getCurrentAngle() * 16.0F)).scale(24.0).render(graphics);
         AnimatedKinetics.defaultBlockElement(AllBlocks.ENCASED_FAN.getDefaultState()).rotateBlock(0.0, 180.0, 0.0).atLocal(0.0, 0.0, 0.0).scale(24.0).render(graphics);
-        GuiGameElement.of(recipe.getProcessingBlock().get(0).defaultBlockState()).scale(24.0).atLocal(0.0, 0.0, 2.0).lighting(AnimatedKinetics.DEFAULT_LIGHTING).render(graphics);
+        if (!recipe.getProcessingBlock().isEmpty())GuiGameElement.of(recipe.getProcessingBlock().get(0).defaultBlockState()).scale(24.0).atLocal(0.0, 0.0, 2.0).lighting(AnimatedKinetics.DEFAULT_LIGHTING).render(graphics);
         matrixStack.popPose();
     }
 }

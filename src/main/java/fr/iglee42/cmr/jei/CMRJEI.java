@@ -29,7 +29,7 @@ import com.simibubi.create.infrastructure.config.CRecipes;
 
 import fr.iglee42.cmr.CMRRecipeTypes;
 import fr.iglee42.cmr.CreateMoreRecipes;
-import fr.iglee42.cmr.CustomFanRecipe;
+import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.drawable.IDrawable;

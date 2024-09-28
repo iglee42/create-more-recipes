@@ -8,6 +8,7 @@ import com.simibubi.create.content.kinetics.fan.processing.FanProcessingTypeRegi
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.foundation.recipe.RecipeApplier;
 import com.simibubi.create.infrastructure.config.AllConfigs;
+import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
