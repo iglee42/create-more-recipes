@@ -2,7 +2,6 @@ package fr.iglee42.cmr.mixins;
 
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock;
@@ -35,11 +34,11 @@ public class BasinRecipeMixin {
                     return;
                 }
                 SnowmanCoolerBlock.HeatLevel coolHeat = blockState.getValue(SnowmanCoolerBlock.HEAT_LEVEL);
-                if (condition.serialize().equals("cold") && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.COOLING)){
+                if (condition.serialize().equals(CreateMoreRecipes.coldId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.COOLING)){
                     cir.setReturnValue(false);
                     return;
                 }
-                if (condition.serialize().equals("freeze") && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.FREEZING)){
+                if (condition.serialize().equals(CreateMoreRecipes.freezeId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.FREEZING)){
                     cir.setReturnValue(false);
                 }
             }

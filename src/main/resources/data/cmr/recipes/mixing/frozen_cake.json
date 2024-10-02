@@ -1,12 +1,12 @@
 {
   "type": "create:mixing",
-  "heatRequirement": "cold",
+  "heatRequirement": "cooled",
   "ingredients": [
     {
       "item": "cmr:frozen_cake_base"
     },
     {
-      "item": "minecraft:packed_ice"
+      "item": "minecraft:blue_ice"
     },
     {
       "fluid": "minecraft:water",

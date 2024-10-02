@@ -50,6 +50,8 @@ import java.util.Map;
 public class CreateMoreRecipes {
 
     public static final String MODID = "cmr";
+    public static final String coldId = "cooled";
+    public static final String freezeId = "frozen";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID).setCreativeTab(CMRCreativeModeTabs.MAIN_TAB);

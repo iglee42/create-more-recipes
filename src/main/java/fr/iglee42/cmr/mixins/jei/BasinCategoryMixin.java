@@ -26,7 +26,7 @@ public class BasinCategoryMixin {
             builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 134, 81)
                     .addItemStack(CMRRegistries.SNOWMAN_COOLER.asStack());
         }
-        if (requiredHeat.serialize().equals("freeze")){
+        if (requiredHeat.serialize().equals(CreateMoreRecipes.freezeId)){
             builder.addSlot(RecipeIngredientRole.CATALYST, 153, 81).addItemStack(CMRRegistries.FROZEN_CAKE.asStack());
         }
     }

@@ -3,8 +3,8 @@
 
   "create.recipe.fan_custom.fan": "Fan behind a block",
   "create.recipe.fan_custom": "Fan with custom block",
-  "create.recipe.heat_requirement.cold": "Cooled",
-  "create.recipe.heat_requirement.freeze": "Frozen",
+  "create.recipe.heat_requirement.cooled": "Cooled",
+  "create.recipe.heat_requirement.frozen": "Frozen",
 
   "block.cmr.snowman_cooler": "Snowman Cooler",
   "block.cmr.empty_snowman_cooler": "Empty Snowman Cooler",

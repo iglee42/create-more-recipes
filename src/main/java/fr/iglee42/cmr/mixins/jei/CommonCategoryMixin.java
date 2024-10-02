@@ -39,7 +39,7 @@ public abstract class CommonCategoryMixin extends BasinCategory {
     private void cmr$replaceDrawCallIfCooler(BasinRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY, CallbackInfo ci) {
         HeatCondition requiredHeat = recipe.getRequiredHeat();
         if (CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.containsKey(requiredHeat)){
-            SnowmanCoolerBlock.HeatLevel level = CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.get(requiredHeat).equals("freeze") ? SnowmanCoolerBlock.HeatLevel.FREEZING : SnowmanCoolerBlock.HeatLevel.COOLING;
+            SnowmanCoolerBlock.HeatLevel level = CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.get(requiredHeat).equals(CreateMoreRecipes.freezeId) ? SnowmanCoolerBlock.HeatLevel.FREEZING : SnowmanCoolerBlock.HeatLevel.COOLING;
             coolerSourceBlock.withHeat(level)
                     .draw(graphics, getBackground().getWidth() / 2 + 3, 55);
             JEIDrawableAccessor drawableAccessor = (JEIDrawableAccessor) this;

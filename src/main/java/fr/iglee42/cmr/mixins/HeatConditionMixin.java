@@ -28,7 +28,7 @@ public class HeatConditionMixin {
 
     @Inject(method = "testBlazeBurner",at = @At("HEAD"), cancellable = true)
     private void cmr$alwaysForCustom(BlazeBurnerBlock.HeatLevel level, CallbackInfoReturnable<Boolean> cir){
-        if (CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.containsKey(this))cir.setReturnValue(true);
+        if (CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.containsKey(this) && level == BlazeBurnerBlock.HeatLevel.NONE )cir.setReturnValue(true);
     }
 
     @Inject(method = "<clinit>",at = @At("TAIL"))
@@ -37,7 +37,7 @@ public class HeatConditionMixin {
             System.out.println(v.name());
         }
 
-        Map<String,Integer> custom = Map.of("cold",0xE3F3F3,"freeze",0x82E1FF);
+        Map<String,Integer> custom = Map.of(CreateMoreRecipes.coldId,0xE3F3F3, CreateMoreRecipes.freezeId,0x82E1FF);
 
 
         custom.forEach((n,c)->{
@@ -52,11 +52,6 @@ public class HeatConditionMixin {
         variants.add(heat);
         HeatConditionMixin.$VALUES = variants.toArray(new HeatCondition[0]);
         return heat;
-    }
-
-    @Inject(method = "testBlazeBurner",at = @At("HEAD"), cancellable = true)
-    private void cmr$testBlazeBurner(BlazeBurnerBlock.HeatLevel level, CallbackInfoReturnable<Boolean> cir){
-        if (CreateMoreRecipes.CUSTOM_HEAT_CONDITIONS.containsKey(this)) cir.setReturnValue(true);
     }
 
 
