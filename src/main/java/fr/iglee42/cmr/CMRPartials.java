@@ -11,6 +11,10 @@ public class CMRPartials {
     public static final PartialModel SNOWMAN_ACTIVE = block("snowman_cooler/snowman/active");
     public static final PartialModel SNOWMAN_SUPER = block("snowman_cooler/snowman/super");
     public static final PartialModel SNOWMAN_FLAME = block("snowman_cooler/flame");
+    public static final PartialModel BLOCK_SPOUT_BOTTOM = block("block_spout/bottom");
+
+    public static final PartialModel BLOCK_SPOUT_MIDDLE = block("block_spout/middle");
+    public static final PartialModel BLOCK_SPOUT_TOP = block("block_spout/top");
 
     private static PartialModel block(String path) {
         return new PartialModel(CreateMoreRecipes.asResource("block/" + path));

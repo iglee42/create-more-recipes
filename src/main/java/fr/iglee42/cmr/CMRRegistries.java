@@ -1,7 +1,9 @@
 package fr.iglee42.cmr;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.AllTags;
+import com.simibubi.create.Create;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
@@ -9,14 +11,19 @@ import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import fr.iglee42.cmr.blockspout.BlockSpoutBlock;
+import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
+import fr.iglee42.cmr.blockspout.BlockSpoutRenderer;
 import fr.iglee42.cmr.cooler.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 import static com.simibubi.create.AllInteractionBehaviours.interactionBehaviour;
 import static com.simibubi.create.AllMovementBehaviours.movementBehaviour;
+import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static fr.iglee42.cmr.CreateMoreRecipes.REGISTRATE;
 
@@ -37,6 +44,16 @@ public class CMRRegistries {
                     .item()
                     .model(AssetLookup.customBlockItemModel("snowman_cooler", "block_with_blaze"))
                     .build()
+                    .register();
+
+    public static final BlockEntry<BlockSpoutBlock> BLOCK_SPOUT =
+            REGISTRATE.block("block_spout", BlockSpoutBlock::new)
+                    .initialProperties(SharedProperties::softMetal)
+                    .properties(p -> p.mapColor(MapColor.COLOR_GRAY).noOcclusion())
+                    .transform(pickaxeOnly())
+                    .addLayer(() -> RenderType::cutoutMipped)
+                    .blockstate((a,b)->{b.simpleBlock(a.get(), new ModelFile.UncheckedModelFile(Create.asResource("block/spout/block")));})
+                    .simpleItem()
                     .register();
 
     public static final BlockEntry<Block> EMPTY_SNOWMAN_COOLER =
@@ -68,6 +85,13 @@ public class CMRRegistries {
             .validBlocks(SNOWMAN_COOLER)
             .renderer(() -> SnowmanCoolerRenderer::new)
             .register();
+
+    public static final BlockEntityEntry<BlockSpoutBlockEntity> BLOCK_SPOUT_BE = REGISTRATE
+            .blockEntity("block_spout", BlockSpoutBlockEntity::new)
+            .validBlocks(BLOCK_SPOUT)
+            .renderer(() -> BlockSpoutRenderer::new)
+            .register();
+
 
 
     public static void register(){}

@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.utility.Lang;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,8 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 public enum CMRRecipeTypes implements IRecipeTypeInfo {
-    CUSTOM_FAN(CustomFanRecipe::new);
+    CUSTOM_FAN(CustomFanRecipe::new),
+    BLOCK_SPOUTING(BlockSpoutingRecipe::new);
 
     private final ResourceLocation id;
     private final RegistryObject<RecipeSerializer<?>> serializerObject;
