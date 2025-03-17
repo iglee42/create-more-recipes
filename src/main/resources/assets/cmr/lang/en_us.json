@@ -3,11 +3,13 @@
 
   "create.recipe.fan_custom.fan": "Fan behind a block",
   "create.recipe.fan_custom": "Fan with custom block",
+  "create.recipe.block_spout": "Block Spouting",
   "create.recipe.heat_requirement.cooled": "Cooled",
   "create.recipe.heat_requirement.frozen": "Frozen",
 
   "block.cmr.snowman_cooler": "Snowman Cooler",
   "block.cmr.empty_snowman_cooler": "Empty Snowman Cooler",
+  "block.cmr.block_spout": "Block Spout",
 
   "item.cmr.frozen_cake": "Frozen Cake",
   "item.cmr.frozen_cake_base": "Frozen Cake Base"

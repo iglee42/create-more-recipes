@@ -1,18 +1,21 @@
 package fr.iglee42.cmr.blockspout;
 
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.VecHelper;
+import fr.iglee42.cmr.init.CMRRecipeTypes;
+import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -23,13 +26,15 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
-    public static final int COPYING_TIME = 100;
+    public static final int TIME = 100;
     public int processingTicks;
     SmartFluidTankBehaviour tank;
     boolean sendParticles;
+    public BlockSpoutingRecipe recipe;
 
 
     public BlockSpoutBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -45,11 +50,48 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
 
     public void tick() {
         super.tick();
-        if (processingTicks > 0) {
+        if (level.isClientSide) return;
+        if (processingTicks >= 0) {
             processingTicks--;
+            notifyUpdate();
+        }
+        if (processingTicks > 7 && processingTicks < 93){
             sendParticles = true;
-        } else
-            sendParticles = false;
+            notifyUpdate();
+        }
+        if (processingTicks == 7 && recipe != null){
+            level.destroyBlock(worldPosition.below(2), false);
+
+            BlockState transformedBlock = recipe.transformBlock(level.getBlockState(worldPosition.below(2)));
+            level.setBlock(worldPosition.below(2), transformedBlock, 3);
+            recipe.rollResults()
+                    .forEach(stack -> Block.popResource(level, worldPosition.below(2), stack));
+            FluidStack stack = getCurrentFluidInTank().copy();
+            stack.shrink(recipe.getRequiredFluid().getRequiredAmount());
+            tank.getPrimaryHandler().setFluid(stack);
+            notifyUpdate();
+            recipe = null;
+
+        }
+
+        if (recipe == null){
+            Optional<BlockSpoutingRecipe> foundRecipe = level.getRecipeManager()
+                    .getAllRecipesFor(CMRRecipeTypes.BLOCK_SPOUTING.getType())
+                    .stream()
+                    .filter(r -> {
+                        BlockSpoutingRecipe bsr =(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r);
+                        return bsr.testBlock(level.getBlockState(worldPosition.below(2))) && bsr.getRequiredFluid().test(getCurrentFluidInTank());
+                    })
+                    .map(r->(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r))
+                    .findFirst();
+
+            if (foundRecipe.isEmpty()){
+                recipe = null;
+                return;
+            }
+            recipe = foundRecipe.get();
+            processingTicks = TIME;
+        }
     }
 
     @Override
@@ -61,20 +103,17 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
     
 
-    protected static int ENCHANT_PARTICLE_COUNT = 20;
-
     protected void spawnParticles() {
         if (isVirtual())
             return;
         Vec3 vec = VecHelper.getCenterOf(worldPosition);
-        vec = vec.subtract(0, 11 / 16f, 0);
-        ParticleOptions particle = ParticleTypes.ENCHANT;
-        for (int i = 0; i < ENCHANT_PARTICLE_COUNT; i++) {
-            Vec3 m = VecHelper.offsetRandomly(Vec3.ZERO, level.random, 1f);
+        vec = vec.subtract(0, 2, 0);
+        ParticleOptions particle = new BlockParticleOption(ParticleTypes.BLOCK,getCurrentFluidInTank().getFluid().defaultFluidState().createLegacyBlock());
+        for (int i = 0; i < 2; i++) {
+            Vec3 m = VecHelper.offsetRandomly(Vec3.ZERO, level.random, 1.5f);
             m = new Vec3(m.x, Math.abs(m.y), m.z);
             level.addAlwaysVisibleParticle(particle, vec.x, vec.y, vec.z, m.x, m.y, m.z);
         }
-        level.playLocalSound(vec.x, vec.y, vec.z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1f, level.random.nextFloat() * .1f + .9f, true);
     }
 
     private FluidStack getCurrentFluidInTank() {

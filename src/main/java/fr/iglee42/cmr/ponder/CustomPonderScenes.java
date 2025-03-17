@@ -7,7 +7,7 @@ import com.simibubi.create.foundation.ponder.SceneBuilder;
 import com.simibubi.create.foundation.ponder.SceneBuildingUtil;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.utility.Pointing;
-import fr.iglee42.cmr.CMRRegistries;
+import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

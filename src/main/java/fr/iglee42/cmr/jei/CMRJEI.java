@@ -27,8 +27,10 @@ import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.config.CRecipes;
 
-import fr.iglee42.cmr.CMRRecipeTypes;
+import fr.iglee42.cmr.init.CMRRecipeTypes;
+import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.CreateMoreRecipes;
+import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -62,12 +64,18 @@ public class CMRJEI implements IModPlugin {
 
 		CreateRecipeCategory<?>
 
-		haunting = builder(CustomFanRecipe.class)
+		customFan = builder(CustomFanRecipe.class)
 				.addTypedRecipes(CMRRecipeTypes.CUSTOM_FAN)
 				.catalystStack(ProcessingViaFanCategory.getFan("fan_custom"))
 				.doubleItemIcon(AllItems.PROPELLER.get(), Items.DIAMOND)
 				.emptyBackground(178, 72)
-				.build("fan_custom", FanCustomCategory::new);
+				.build("fan_custom", FanCustomCategory::new),
+		blockSpout = builder(BlockSpoutingRecipe.class)
+				.addTypedRecipes(CMRRecipeTypes.BLOCK_SPOUTING)
+				.catalystStack(CMRRegistries.BLOCK_SPOUT::asStack)
+				.itemIcon(CMRRegistries.BLOCK_SPOUT.asItem())
+				.emptyBackground(178, 72)
+				.build("block_spout", BlockSpoutCategory::new);
 
 	}
 

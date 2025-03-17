@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "minecraft:dried_kelp"
+    },
+    "T": {
+      "item": "create:copper_casing"
+    },
+    "S": {
+      "tag": "forge:plates/copper"
+    }
+  },
+  "pattern": [
+    "T",
+    "P",
+    "S"
+  ],
+  "result": {
+    "item": "cmr:block_spout"
+  },
+  "show_notification": true
+}

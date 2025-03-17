@@ -1,18 +1,14 @@
 package fr.iglee42.cmr.cooler;
 
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllTags.AllEntityTags;
-import com.simibubi.create.foundation.utility.RegisteredObjects;
 import com.simibubi.create.foundation.utility.VecHelper;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import fr.iglee42.cmr.CMRRegistries;
-import fr.iglee42.cmr.CMRTags;
+import fr.iglee42.cmr.init.CMRRegistries;
+import fr.iglee42.cmr.init.CMRTags;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;

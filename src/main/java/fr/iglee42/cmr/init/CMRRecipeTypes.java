@@ -1,4 +1,4 @@
-package fr.iglee42.cmr;
+package fr.iglee42.cmr.init;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags.AllRecipeSerializerTags;
@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.utility.Lang;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import net.minecraft.core.registries.Registries;

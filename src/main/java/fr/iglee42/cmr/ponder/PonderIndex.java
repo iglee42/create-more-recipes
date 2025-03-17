@@ -1,7 +1,7 @@
 package fr.iglee42.cmr.ponder;
 
 import com.simibubi.create.foundation.ponder.PonderRegistrationHelper;
-import fr.iglee42.cmr.CMRRegistries;
+import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.CreateMoreRecipes;
 
 public class PonderIndex {

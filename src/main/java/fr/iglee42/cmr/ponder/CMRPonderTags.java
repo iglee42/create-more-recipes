@@ -3,7 +3,7 @@ package fr.iglee42.cmr.ponder;
 import com.simibubi.create.foundation.ponder.PonderRegistry;
 import com.simibubi.create.foundation.ponder.PonderTag;
 import com.simibubi.create.infrastructure.ponder.AllPonderTags;
-import fr.iglee42.cmr.CMRRegistries;
+import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.CreateMoreRecipes;
 
 public class CMRPonderTags {

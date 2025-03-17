@@ -1,9 +1,4 @@
-package fr.iglee42.cmr;
-
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
+package fr.iglee42.cmr.init;
 
 import com.simibubi.create.foundation.block.connected.AllCTTypes;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
@@ -11,10 +6,8 @@ import com.simibubi.create.foundation.block.connected.CTSpriteShifter;
 import com.simibubi.create.foundation.block.connected.CTType;
 import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
 import com.simibubi.create.foundation.block.render.SpriteShifter;
-import com.simibubi.create.foundation.utility.Couple;
 
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.state.properties.WoodType;
+import fr.iglee42.cmr.CreateMoreRecipes;
 
 public class CMRSpriteShifts {
 

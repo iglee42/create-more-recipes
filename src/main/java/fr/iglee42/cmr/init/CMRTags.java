@@ -1,9 +1,10 @@
-package fr.iglee42.cmr;
+package fr.iglee42.cmr.init;
 
 import java.util.Collections;
 
 import com.simibubi.create.foundation.utility.Lang;
 
+import fr.iglee42.cmr.CreateMoreRecipes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import static fr.iglee42.cmr.CMRTags.NameSpace.MOD;
+import static fr.iglee42.cmr.init.CMRTags.NameSpace.MOD;
 
 public class CMRTags {
 	public static <T> TagKey<T> optionalTag(IForgeRegistry<T> registry,

@@ -1,29 +1,19 @@
 package fr.iglee42.cmr.recipes;
 
 import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
 
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
+import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.content.processing.sequenced.IAssemblyRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
-import com.simibubi.create.foundation.utility.Components;
-import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.foundation.utility.BlockHelper;
 
-import fr.iglee42.cmr.CMRRecipeTypes;
-import net.minecraft.network.chat.Component;
+import fr.iglee42.cmr.init.CMRRecipeTypes;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
@@ -42,6 +32,15 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 		return ingredients.get(0)
 				.test(new ItemStack(in.getBlock()
 						.asItem()));
+	}
+
+	public BlockState transformBlock(BlockState in) {
+		ProcessingOutput mainOutput = results.get(0);
+		ItemStack output = mainOutput.rollOutput();
+		if (output.getItem() instanceof BlockItem bi)
+			return BlockHelper.copyProperties(in, bi.getBlock()
+					.defaultBlockState());
+		return Blocks.AIR.defaultBlockState();
 	}
 
 	@Override
@@ -64,5 +63,20 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 			throw new IllegalStateException("Filling Recipe: " + id.toString() + " has no fluid ingredient!");
 		return fluidIngredients.get(0);
 	}
+
+
+	@Override
+	public List<ItemStack> rollResults() {
+		return rollResults(getRollableResultsExceptBlock());
+	}
+
+	public List<ProcessingOutput> getRollableResultsExceptBlock() {
+		ProcessingOutput mainOutput = results.get(0);
+		if (mainOutput.getStack()
+				.getItem() instanceof BlockItem)
+			return results.subList(1, results.size());
+		return results;
+	}
+
 
 }

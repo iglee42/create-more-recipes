@@ -1,20 +1,23 @@
-package fr.iglee42.cmr;
+package fr.iglee42.cmr.init;
 
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.Create;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
+import com.simibubi.create.content.kinetics.BlockStressDefaults;
+import com.simibubi.create.content.kinetics.crafter.*;
 import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.BlockStateGen;
+import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlock;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
 import fr.iglee42.cmr.blockspout.BlockSpoutRenderer;
 import fr.iglee42.cmr.cooler.*;
+import fr.iglee42.cmr.crafter.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +27,7 @@ import net.minecraftforge.client.model.generators.ModelFile;
 import static com.simibubi.create.AllInteractionBehaviours.interactionBehaviour;
 import static com.simibubi.create.AllMovementBehaviours.movementBehaviour;
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static fr.iglee42.cmr.CreateMoreRecipes.REGISTRATE;
 
@@ -52,7 +56,6 @@ public class CMRRegistries {
                     .properties(p -> p.mapColor(MapColor.COLOR_GRAY).noOcclusion())
                     .transform(pickaxeOnly())
                     .addLayer(() -> RenderType::cutoutMipped)
-                    .blockstate((a,b)->{b.simpleBlock(a.get(), new ModelFile.UncheckedModelFile(Create.asResource("block/spout/block")));})
                     .simpleItem()
                     .register();
 

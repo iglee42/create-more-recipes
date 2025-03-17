@@ -1,7 +1,7 @@
-package fr.iglee42.cmr;
+package fr.iglee42.cmr.init;
 
 import com.jozufozu.flywheel.core.PartialModel;
-import com.simibubi.create.Create;
+import fr.iglee42.cmr.CreateMoreRecipes;
 
 public class CMRPartials {
 

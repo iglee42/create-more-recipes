@@ -5,7 +5,7 @@ import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.foundation.fluid.FluidIngredient;
-import fr.iglee42.cmr.CMRRecipeTypes;
+import fr.iglee42.cmr.init.CMRRecipeTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
