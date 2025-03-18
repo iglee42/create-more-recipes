@@ -1,16 +1,16 @@
 package fr.iglee42.cmr.jei;
 
-import com.jozufozu.flywheel.core.PartialModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.compat.jei.category.animations.AnimatedKinetics;
-import com.simibubi.create.foundation.block.render.SpriteShiftEntry;
-import com.simibubi.create.foundation.render.CachedBufferer;
-import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import fr.iglee42.cmr.init.CMRPartials;
 import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.init.CMRSpriteShifts;
+import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.render.CachedBuffers;
+import net.createmod.catnip.render.SpriteShiftEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
@@ -78,7 +78,7 @@ public class AnimatedSnowmanCooler extends AnimatedKinetics {
 		uScroll = uScroll - Math.floor(uScroll);
 		uScroll = uScroll * spriteWidth / 2;
 
-		CachedBufferer.partial(CMRPartials.SNOWMAN_FLAME, Blocks.AIR.defaultBlockState())
+		CachedBuffers.partial(CMRPartials.SNOWMAN_FLAME, Blocks.AIR.defaultBlockState())
 		.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll)
 		.light(LightTexture.FULL_BRIGHT)
 			.renderInto(matrixStack, graphics.bufferSource().getBuffer(RenderType.cutoutMipped()));

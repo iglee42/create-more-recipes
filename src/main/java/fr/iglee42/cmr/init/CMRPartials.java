@@ -1,6 +1,6 @@
 package fr.iglee42.cmr.init;
 
-import com.jozufozu.flywheel.core.PartialModel;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import fr.iglee42.cmr.CreateMoreRecipes;
 
 public class CMRPartials {
@@ -11,17 +11,15 @@ public class CMRPartials {
     public static final PartialModel SNOWMAN_ACTIVE = block("snowman_cooler/snowman/active");
     public static final PartialModel SNOWMAN_SUPER = block("snowman_cooler/snowman/super");
     public static final PartialModel SNOWMAN_FLAME = block("snowman_cooler/flame");
+    public static final PartialModel SNOWMAN_CAGE = block("snowman_cooler/block");
     public static final PartialModel BLOCK_SPOUT_BOTTOM = block("block_spout/bottom");
 
-    public static final PartialModel BLOCK_SPOUT_MIDDLE = block("block_spout/middle");
-    public static final PartialModel BLOCK_SPOUT_TOP = block("block_spout/top");
-
     private static PartialModel block(String path) {
-        return new PartialModel(CreateMoreRecipes.asResource("block/" + path));
+        return PartialModel.of(CreateMoreRecipes.asResource("block/" + path));
     }
 
     private static PartialModel entity(String path) {
-        return new PartialModel(CreateMoreRecipes.asResource("entity/" + path));
+        return PartialModel.of(CreateMoreRecipes.asResource("entity/" + path));
     }
 
     public static void init() {}

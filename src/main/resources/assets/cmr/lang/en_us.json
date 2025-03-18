@@ -12,6 +12,17 @@
   "block.cmr.block_spout": "Block Spout",
 
   "item.cmr.frozen_cake": "Frozen Cake",
-  "item.cmr.frozen_cake_base": "Frozen Cake Base"
+  "item.cmr.frozen_cake_base": "Frozen Cake Base",
+
+  "cmr.ponder.empty_snowman_cooler.header": "Using Empty Snowman Coolers",
+  "cmr.ponder.empty_snowman_cooler.text_1": "Right-click a Snowman with the empty cooler to capture it",
+  "cmr.ponder.empty_snowman_cooler.text_2": "Alternatively, Snowmen can be collected from their Spawners directly",
+  "cmr.ponder.empty_snowman_cooler.text_3": "You now have an ideal cold source for various machines",
+
+  "cmr.ponder.snowman_cooler.header": "Feeding Snowman Coolers",
+  "cmr.ponder.snowman_cooler.text_1": "Snowman Coolers can provide Cold to Items processed in a Basin",
+  "cmr.ponder.snowman_cooler.text_2": "For this, the Snowman has to be fed with cold items",
+  "cmr.ponder.snowman_cooler.text_3": "With a Snow Cake, the Cooler can reach an even stronger level of cold",
+  "cmr.ponder.snowman_cooler.text_4": "The feeding process can be automated using Deployers or Mechanical Arms"
 
 }

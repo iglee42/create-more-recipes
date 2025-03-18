@@ -4,14 +4,21 @@ import java.util.Random;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
+import com.simibubi.create.content.logistics.stockTicker.StockTickerInteractionHandler;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
-import com.simibubi.create.foundation.utility.Lang;
 
 import fr.iglee42.cmr.init.CMRRegistries;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -21,7 +28,10 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -73,9 +83,8 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 		if (world.isClientSide)
 			return;
 		BlockEntity blockEntity = world.getBlockEntity(pos.above());
-		if (!(blockEntity instanceof BasinBlockEntity))
+		if (!(blockEntity instanceof BasinBlockEntity basin))
 			return;
-		BasinBlockEntity basin = (BasinBlockEntity) blockEntity;
 		basin.notifyChangeOfContents();
 	}
 
@@ -103,6 +112,14 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 				return InteractionResult.SUCCESS;
 			});
 
+		SnowmanCoolerBlockEntity be = getBlockEntity(level, pos);
+		if (be != null && be.stockKeeper) {
+			StockTickerBlockEntity stockTicker = SnowmanCoolerBlockEntity.getStockTicker(level, pos);
+			if (stockTicker != null)
+				StockTickerInteractionHandler.interactWithLogisticsManagerAt(player, level, stockTicker.getBlockPos());
+			return ItemInteractionResult.SUCCESS;
+		}
+
 		if (heldItem.isEmpty())
 			return onBlockEntityUse(world, pos, bbte -> {
 				if (!bbte.goggles)
@@ -112,18 +129,6 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 				return InteractionResult.SUCCESS;
 			});
 
-//		if (heat == HeatLevel.NONE) {
-//			if (heldItem.getItem() instanceof FlintAndSteelItem) {
-//				world.playSound(player, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F,
-//					world.random.nextFloat() * 0.4F + 0.8F);
-//				if (world.isClientSide)
-//					return InteractionResult.SUCCESS;
-//				heldItem.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
-//				world.setBlockAndUpdate(pos, AllBlocks.LIT_BLAZE_BURNER.getDefaultState());
-//				return InteractionResult.SUCCESS;
-//			}
-//			return InteractionResult.PASS;
-//		}
 
 		boolean doNotConsume = player.isCreative();
 		boolean forceOverflow = !(player instanceof FakePlayer);
@@ -212,17 +217,6 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 		return false;
 	}
 
-	@OnlyIn(Dist.CLIENT)
-	public void animateTick(BlockState state, Level world, BlockPos pos, Random random) {
-		if (random.nextInt(10) != 0)
-			return;
-		if (!state.getValue(HEAT_LEVEL)
-			.isAtLeast(HeatLevel.IDLE))
-			return;
-		world.playLocalSound((double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F),
-			(double) ((float) pos.getZ() + 0.5F), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.BLOCKS,
-			0.5F + random.nextFloat(), random.nextFloat() * 0.7F + 0.6F, false);
-	}
 
 	public static HeatLevel getHeatLevelOf(BlockState blockState) {
 		return blockState.hasProperty(SnowmanCoolerBlock.HEAT_LEVEL) ? blockState.getValue(SnowmanCoolerBlock.HEAT_LEVEL)

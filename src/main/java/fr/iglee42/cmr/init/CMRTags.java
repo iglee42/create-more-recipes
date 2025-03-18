@@ -1,8 +1,5 @@
 package fr.iglee42.cmr.init;
 
-import java.util.Collections;
-
-import com.simibubi.create.foundation.utility.Lang;
 
 import fr.iglee42.cmr.CreateMoreRecipes;
 import net.minecraft.core.registries.Registries;

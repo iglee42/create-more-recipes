@@ -2,21 +2,27 @@ package fr.iglee42.cmr.cooler;
 
 import java.util.List;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
+import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
+import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
 
+import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import fr.iglee42.cmr.init.CMRTags;
+import net.createmod.catnip.animation.LerpedFloat;
+import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +31,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -32,20 +40,26 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock.HeatLevel;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
+
+import javax.annotation.Nullable;
 
 public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 
 	public static final int MAX_HEAT_CAPACITY = 10000;
 	public static final int INSERTION_THRESHOLD = 500;
 
+	public LerpedFloat headAnimation;
+	public boolean stockKeeper;
+	public boolean isCreative;
+	public boolean goggles;
+	public boolean hat;
+
 	protected FuelType activeFuel;
 	protected int remainingBurnTime;
-	protected LerpedFloat headAnimation;
 	protected LerpedFloat headAngle;
-	protected boolean isCreative;
-	protected boolean goggles;
-	protected boolean hat;
 
 	public SnowmanCoolerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -77,7 +91,8 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 		super.tick();
 
 		if (level.isClientSide) {
-			tickAnimation();
+			if (shouldTickAnimation())
+				tickAnimation();
 			if (!isVirtual())
 				spawnParticles(getHeatLevelFromBlock(), 1);
 			return;
@@ -103,8 +118,35 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 		updateBlockState();
 	}
 
+	@Override
+	public void lazyTick() {
+		super.lazyTick();
+		stockKeeper = getStockTicker(level, worldPosition) != null;
+
+	}
+
+	@Nullable
+	public static StockTickerBlockEntity getStockTicker(LevelAccessor level, BlockPos pos) {
+		for (Direction direction : Iterate.horizontalDirections) {
+			if (level instanceof Level l && !l.isLoaded(pos))
+				return null;
+			BlockState blockState = level.getBlockState(pos.relative(direction));
+			if (!AllBlocks.STOCK_TICKER.has(blockState))
+				continue;
+			if (level.getBlockEntity(pos.relative(direction)) instanceof StockTickerBlockEntity stbe)
+				return stbe;
+		}
+		return null;
+	}
+
 	@OnlyIn(Dist.CLIENT)
-	private void tickAnimation() {
+	private boolean shouldTickAnimation() {
+		// Offload the animation tick to the visual when flywheel in enabled
+		return !VisualizationManager.supportsVisualization(level);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+    protected void tickAnimation() {
 		boolean active = getHeatLevelFromBlock().isAtLeast(HeatLevel.FADING) && isValidBlockAbove();
 
 		if (!active) {
@@ -125,15 +167,15 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 				target = AngleHelper.deg(-Mth.atan2(dz, dx)) - 90;
 			}
 			target = headAngle.getValue() + AngleHelper.getShortestAngleDiff(headAngle.getValue(), target);
-			headAngle.chase(target, .25f, Chaser.exp(5));
+			headAngle.chase(target, .25f, LerpedFloat.Chaser.exp(5));
 			headAngle.tickChaser();
 		} else {
 			headAngle.chase((AngleHelper.horizontalAngle(getBlockState().getOptionalValue(SnowmanCoolerBlock.FACING)
-				.orElse(Direction.SOUTH)) + 180) % 360, .125f, Chaser.EXP);
+				.orElse(Direction.SOUTH)) + 180) % 360, .125f, LerpedFloat.Chaser.EXP);
 			headAngle.tickChaser();
 		}
 
-		headAnimation.chase(active ? 1 : 0, .25f, Chaser.exp(.25f));
+		headAnimation.chase(active ? 1 : 0, .25f, LerpedFloat.Chaser.exp(.25f));
 		headAnimation.tickChaser();
 	}
 
@@ -166,6 +208,13 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 
 	public SnowmanCoolerBlock.HeatLevel getHeatLevelFromBlock() {
 		return SnowmanCoolerBlock.getHeatLevelOf(getBlockState());
+	}
+
+	public HeatLevel getHeatLevelForRender() {
+		HeatLevel heatLevel = getHeatLevelFromBlock();
+		if (!heatLevel.isAtLeast(HeatLevel.FADING) && stockKeeper)
+			return HeatLevel.FADING;
+		return heatLevel;
 	}
 
 	public void updateBlockState() {

@@ -3,6 +3,7 @@ package fr.iglee42.cmr.mixins;
 import com.simibubi.create.compat.jei.ConversionRecipe;
 import com.simibubi.create.compat.jei.category.MysteriousItemConversionCategory;
 import fr.iglee42.cmr.init.CMRRegistries;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,7 +16,7 @@ import java.util.List;
 @Mixin(MysteriousItemConversionCategory.class)
 public class MysteriousItemConversionCategoryMixin {
 
-    @Shadow @Final public static List<ConversionRecipe> RECIPES;
+    @Shadow @Final public static List<RecipeHolder<ConversionRecipe>> RECIPES;
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void inject(CallbackInfo ci){

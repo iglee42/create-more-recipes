@@ -1,5 +1,6 @@
 package fr.iglee42.cmr.init;
 
+import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.fan.processing.AllFanProcessingTypes;
@@ -13,17 +14,23 @@ import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,7 +45,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
     private static final Map<String, FanProcessingType> LEGACY_NAME_MAP;
 
     private static <T extends FanProcessingType> T register(String id, T type) {
-        FanProcessingTypeRegistry.register(CreateMoreRecipes.asResource(id), type);
+        Registry.register(CreateBuiltInRegistries.FAN_PROCESSING_TYPE,CreateMoreRecipes.asResource(id), type);
         return type;
     }
 
@@ -47,7 +54,8 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
         return LEGACY_NAME_MAP.get(name);
     }
 
-    public static void register() {
+    @ApiStatus.Internal
+    public static void init() {
     }
 
     public static FanProcessingType parseLegacy(String str) {
@@ -67,7 +75,6 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
 
         private FanProcessingType.AirFlowParticleAccess access;
 
-        private static final CustomFanRecipe.CustomFanWrapper RECIPE_WRAPPER = new CustomFanRecipe.CustomFanWrapper();
         @Override
         public boolean isValidAt(Level level, BlockPos blockPos) {
             Block block = level.getBlockState(blockPos).getBlock();
@@ -117,14 +124,15 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
         }
 
         private boolean canProcess(ItemStack itemStack,Level level,Direction fanDir,BlockPos fanPos,double entityDistance){
-            RECIPE_WRAPPER.setItem(0,itemStack);
+            ItemStackHandler handler = new ItemStackHandler(1);
+            handler.setStackInSlot(0,itemStack);
 
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance))){
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance)).getBlock();
                 return level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().anyMatch(r->{
                     ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r;
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
-                    return r2.matches(RECIPE_WRAPPER,level,block);
+                    return r2.matches(new CustomFanRecipe.CustomFanWrapper(handler),level,block);
                 });
             }
             return false;
@@ -151,13 +159,15 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
         }
 
         public @Nullable List<ItemStack> process(ItemStack itemStack, Level level,Direction dir,BlockPos fanPos, double entityDistance) {
-            RECIPE_WRAPPER.setItem(0, itemStack);
+            ItemStackHandler handler = new ItemStackHandler(1);
+            handler.setStackInSlot(0,itemStack);
+
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,dir, (int) entityDistance))) {
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos, level, dir, (int) entityDistance)).getBlock();
                 Optional<Recipe<Container>> recipe = level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().filter(r -> {
                     ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r;
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
-                    return r2.matches(RECIPE_WRAPPER,level,block);
+                    return r2.matches(new CustomFanRecipe.CustomFanWrapper(handler),level,block);
                 }).findFirst();
                 return recipe.isPresent() ? RecipeApplier.applyRecipeOn(level, itemStack, recipe.get()) : null;
             }
@@ -185,7 +195,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
 
 
         public TransportedItemStackHandlerBehaviour.TransportedResult applyProcessingHandlers(TransportedItemStack transported, Level world, FanProcessingType type, Direction dir, BlockPos fanPos, int blockDistance) {
-            TransportedItemStackHandlerBehaviour.TransportedResult ignore = TransportedItemStackHandlerBehaviour.TransportedResult.doNothing();
+           TransportedItemStackHandlerBehaviour.TransportedResult ignore = TransportedItemStackHandlerBehaviour.TransportedResult.doNothing();
             if (transported.processedBy != type) {
                 transported.processedBy = type;
                 int timeModifierForStackSize = ((transported.stack.getCount() - 1) / 16) + 1;
@@ -227,7 +237,11 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
             CompoundTag processing = createData.getCompound("Processing");
 
             if (!processing.contains("Type") || AllFanProcessingTypes.parseLegacy(processing.getString("Type")) != type) {
-                processing.putString("Type", FanProcessingTypeRegistry.getIdOrThrow(type).toString());
+                ResourceLocation key = CreateBuiltInRegistries.FAN_PROCESSING_TYPE.getKey(type);
+                if (key == null)
+                    throw new IllegalArgumentException("Could not get id for FanProcessingType " + type + "!");
+
+                processing.putString("Type", key.toString());
                 int timeModifierForStackSize = ((entity.getItem()
                         .getCount() - 1) / 16) + 1;
                 int processingTime =

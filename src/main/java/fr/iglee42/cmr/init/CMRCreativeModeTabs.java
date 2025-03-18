@@ -1,6 +1,15 @@
 package fr.iglee42.cmr.init;
 
+
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.AllItems;
+import com.simibubi.create.content.equipment.armor.BacktankUtil;
+import com.simibubi.create.content.logistics.box.PackageStyles;
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.TagDependentIngredientItem;
+import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import fr.iglee42.cmr.CreateMoreRecipes;
@@ -26,6 +35,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -39,7 +49,7 @@ public class CMRCreativeModeTabs {
 			.title(Component.translatable("itemGroup.cmr"))
 			.withTabsBefore(AllCreativeModeTabs.BASE_CREATIVE_TAB.getKey())
 			.icon(CMRRegistries.SNOWMAN_COOLER::asStack)
-				.displayItems(new RegistrateDisplayItemsGenerator())
+				.displayItems(new RegistrateDisplayItemsGenerator(true,CMRCreativeModeTabs.MAIN_TAB))
 			.build());
 
 	
@@ -51,26 +61,76 @@ public class CMRCreativeModeTabs {
 		return MAIN_TAB.get();
 	}
 
-	public static class RegistrateDisplayItemsGenerator implements CreativeModeTab.DisplayItemsGenerator {
+	private static class RegistrateDisplayItemsGenerator implements CreativeModeTab.DisplayItemsGenerator {
+		private static final Predicate<Item> IS_ITEM_3D_PREDICATE;
 
+		static {
+			MutableObject<Predicate<Item>> isItem3d = new MutableObject<>(item -> false);
+			if (CatnipServices.PLATFORM.getEnv().isClient())
+				isItem3d.setValue(makeClient3dItemPredicate());
+			IS_ITEM_3D_PREDICATE = isItem3d.getValue();
+		}
 
-		private static List<RegistrateDisplayItemsGenerator.ItemOrdering> makeOrderings() {
-			List<RegistrateDisplayItemsGenerator.ItemOrdering> orderings = new ReferenceArrayList<>();
+		@OnlyIn(Dist.CLIENT)
+		private static Predicate<Item> makeClient3dItemPredicate() {
+			return item -> {
+				ItemRenderer itemRenderer = Minecraft.getInstance()
+						.getItemRenderer();
+				BakedModel model = itemRenderer.getModel(new ItemStack(item), null, null, 0);
+				return model.isGui3d();
+			};
+		}
 
-			Map<ItemProviderEntry<?>, ItemProviderEntry<?>> simpleBeforeOrderings = Map.of(
+		private final boolean addItems;
+		private final DeferredHolder<CreativeModeTab, CreativeModeTab> tabFilter;
 
+		public RegistrateDisplayItemsGenerator(boolean addItems, DeferredHolder<CreativeModeTab, CreativeModeTab> tabFilter) {
+			this.addItems = addItems;
+			this.tabFilter = tabFilter;
+		}
+
+		private static Predicate<Item> makeExclusionPredicate() {
+			Set<Item> exclusions = new ReferenceOpenHashSet<>();
+
+			List<ItemProviderEntry<?, ?>> simpleExclusions = List.of(
 			);
 
-			Map<ItemProviderEntry<?>, ItemProviderEntry<?>> simpleAfterOrderings = Map.of(
+			List<ItemEntry<TagDependentIngredientItem>> tagDependentExclusions = List.of(
+			);
 
+			for (ItemProviderEntry<?, ?> entry : simpleExclusions) {
+				exclusions.add(entry.asItem());
+			}
+
+			for (ItemEntry<TagDependentIngredientItem> entry : tagDependentExclusions) {
+				TagDependentIngredientItem item = entry.get();
+				if (item.shouldHide()) {
+					exclusions.add(entry.asItem());
+				}
+			}
+
+			return exclusions::contains;
+		}
+
+		private static List<ItemOrdering> makeOrderings() {
+			List<ItemOrdering> orderings = new ReferenceArrayList<>();
+
+			Map<ItemProviderEntry<?, ?>, ItemProviderEntry<?, ?>> simpleBeforeOrderings = Map.of(
+			);
+
+			Map<ItemProviderEntry<?, ?>, ItemProviderEntry<?, ?>> simpleAfterOrderings = Map.of(
 			);
 
 			simpleBeforeOrderings.forEach((entry, otherEntry) -> {
-				orderings.add(RegistrateDisplayItemsGenerator.ItemOrdering.before(entry.asItem(), otherEntry.asItem()));
+				orderings.add(ItemOrdering.before(entry.asItem(), otherEntry.asItem()));
 			});
 
 			simpleAfterOrderings.forEach((entry, otherEntry) -> {
-				orderings.add(RegistrateDisplayItemsGenerator.ItemOrdering.after(entry.asItem(), otherEntry.asItem()));
+				orderings.add(ItemOrdering.after(entry.asItem(), otherEntry.asItem()));
+			});
+
+			PackageStyles.STANDARD_BOXES.forEach(item -> {
+				orderings.add(ItemOrdering.after(item, AllBlocks.PACKAGER.asItem()));
 			});
 
 			return orderings;
@@ -80,7 +140,6 @@ public class CMRCreativeModeTabs {
 			Map<Item, Function<Item, ItemStack>> factories = new Reference2ReferenceOpenHashMap<>();
 
 			Map<ItemProviderEntry<?>, Function<Item, ItemStack>> simpleFactories = Map.of(
-
 			);
 
 			simpleFactories.forEach((entry, factory) -> {
@@ -106,8 +165,6 @@ public class CMRCreativeModeTabs {
 				visibilities.put(entry.asItem(), factory);
 			});
 
-
-
 			return item -> {
 				CreativeModeTab.TabVisibility visibility = visibilities.get(item);
 				if (visibility != null) {
@@ -118,59 +175,57 @@ public class CMRCreativeModeTabs {
 		}
 
 		@Override
-		public void accept(CreativeModeTab.ItemDisplayParameters pParameters, CreativeModeTab.Output output) {
-			if (EffectiveSide.get().isServer()) return;
-			if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) return;
-			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-			List<RegistrateDisplayItemsGenerator.ItemOrdering> orderings = makeOrderings();
+		public void accept(CreativeModeTab.ItemDisplayParameters parameters, CreativeModeTab.Output output) {
+			Predicate<Item> exclusionPredicate = makeExclusionPredicate();
+			List<ItemOrdering> orderings = makeOrderings();
 			Function<Item, ItemStack> stackFunc = makeStackFunc();
 			Function<Item, CreativeModeTab.TabVisibility> visibilityFunc = makeVisibilityFunc();
-			RegistryObject<CreativeModeTab> tab = MAIN_TAB;
 
 			List<Item> items = new LinkedList<>();
-			items.addAll(collectItems(tab, itemRenderer, true));
-			items.addAll(collectBlocks(tab));
-			items.addAll(collectItems(tab, itemRenderer, false));
+			if (addItems) {
+				items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE.negate())));
+			}
+			items.addAll(collectBlocks(exclusionPredicate));
+			if (addItems) {
+				items.addAll(collectItems(exclusionPredicate.or(IS_ITEM_3D_PREDICATE)));
+			}
 
 			applyOrderings(items, orderings);
 			outputAll(output, items, stackFunc, visibilityFunc);
 		}
 
-		private List<Item> collectBlocks(RegistryObject<CreativeModeTab> tab) {
+		private List<Item> collectBlocks(Predicate<Item> exclusionPredicate) {
 			List<Item> items = new ReferenceArrayList<>();
-			for (RegistryEntry<Block> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.BLOCK)) {
-				if (!CreateMoreRecipes.REGISTRATE.isInCreativeTab(entry, tab))
+			for (RegistryEntry<Block, Block> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.BLOCK)) {
+				if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
 					continue;
 				Item item = entry.get()
 						.asItem();
 				if (item == Items.AIR)
 					continue;
-				items.add(item);
+				if (!exclusionPredicate.test(item))
+					items.add(item);
 			}
 			items = new ReferenceArrayList<>(new ReferenceLinkedOpenHashSet<>(items));
 			return items;
 		}
 
-		private List<Item> collectItems(RegistryObject<CreativeModeTab> tab, ItemRenderer itemRenderer, boolean special) {
+		private List<Item> collectItems(Predicate<Item> exclusionPredicate) {
 			List<Item> items = new ReferenceArrayList<>();
-
-
-			for (RegistryEntry<Item> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.ITEM)) {
-				if (!CreateMoreRecipes.REGISTRATE.isInCreativeTab(entry, tab))
+			for (RegistryEntry<Item, Item> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.ITEM)) {
+				if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
 					continue;
 				Item item = entry.get();
 				if (item instanceof BlockItem)
 					continue;
-				BakedModel model = itemRenderer.getModel(new ItemStack(item), null, null, 0);
-				if (model.isGui3d() != special)
-					continue;
-				items.add(item);
+				if (!exclusionPredicate.test(item))
+					items.add(item);
 			}
 			return items;
 		}
 
-		private static void applyOrderings(List<Item> items, List<RegistrateDisplayItemsGenerator.ItemOrdering> orderings) {
-			for (RegistrateDisplayItemsGenerator.ItemOrdering ordering : orderings) {
+		private static void applyOrderings(List<Item> items, List<ItemOrdering> orderings) {
+			for (ItemOrdering ordering : orderings) {
 				int anchorIndex = items.indexOf(ordering.anchor());
 				if (anchorIndex != -1) {
 					Item item = ordering.item();
@@ -181,7 +236,7 @@ public class CMRCreativeModeTabs {
 							anchorIndex--;
 						}
 					}
-					if (ordering.type() == RegistrateDisplayItemsGenerator.ItemOrdering.Type.AFTER) {
+					if (ordering.type() == ItemOrdering.Type.AFTER) {
 						items.add(anchorIndex + 1, item);
 					} else {
 						items.add(anchorIndex, item);
@@ -196,13 +251,13 @@ public class CMRCreativeModeTabs {
 			}
 		}
 
-		private record ItemOrdering(Item item, Item anchor, RegistrateDisplayItemsGenerator.ItemOrdering.Type type) {
-			public static RegistrateDisplayItemsGenerator.ItemOrdering before(Item item, Item anchor) {
-				return new RegistrateDisplayItemsGenerator.ItemOrdering(item, anchor, RegistrateDisplayItemsGenerator.ItemOrdering.Type.BEFORE);
+		private record ItemOrdering(Item item, Item anchor, Type type) {
+			public static ItemOrdering before(Item item, Item anchor) {
+				return new ItemOrdering(item, anchor, Type.BEFORE);
 			}
 
-			public static RegistrateDisplayItemsGenerator.ItemOrdering after(Item item, Item anchor) {
-				return new RegistrateDisplayItemsGenerator.ItemOrdering(item, anchor, RegistrateDisplayItemsGenerator.ItemOrdering.Type.AFTER);
+			public static ItemOrdering after(Item item, Item anchor) {
+				return new ItemOrdering(item, anchor, Type.AFTER);
 			}
 
 			public enum Type {

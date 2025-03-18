@@ -1,35 +1,21 @@
 package fr.iglee42.cmr.jei;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
+import com.simibubi.create.Create;
 import com.simibubi.create.compat.jei.DoubleItemIcon;
 import com.simibubi.create.compat.jei.EmptyBackground;
 import com.simibubi.create.compat.jei.ItemIcon;
 import com.simibubi.create.compat.jei.category.CreateRecipeCategory;
 import com.simibubi.create.compat.jei.category.ProcessingViaFanCategory;
-import com.simibubi.create.foundation.config.ConfigBase.ConfigBool;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
-import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.config.CRecipes;
-
+import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.init.CMRRecipeTypes;
 import fr.iglee42.cmr.init.CMRRegistries;
-import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import mezz.jei.api.IModPlugin;
@@ -40,14 +26,28 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
+import net.createmod.catnip.config.ConfigBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @JeiPlugin
 @SuppressWarnings("unused")
@@ -109,7 +109,8 @@ public class CMRJEI implements IModPlugin {
 	}
 
 
-	private class CategoryBuilder<T extends Recipe<?>> {
+
+	private class CategoryBuilder<T extends Recipe<? extends RecipeInput>> {
 		private final Class<? extends T> recipeClass;
 		private Predicate<CRecipes> predicate = cRecipes -> true;
 
@@ -161,17 +162,20 @@ public class CMRJEI implements IModPlugin {
 		public CategoryBuilder<T> addTypedRecipes(IRecipeTypeInfo recipeTypeEntry) {
 			return addTypedRecipes(recipeTypeEntry::getType);
 		}
-
-		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<? extends T>> recipeType) {
-			return addRecipeListConsumer(recipes -> CMRJEI.<T>consumeTypedRecipes(recipes::add, recipeType.get()));
+		public <I extends RecipeInput, R extends Recipe<I>> CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<R>> recipeType) {
+			return addRecipeListConsumer(recipes -> CMRJEI.<T>consumeTypedRecipes(recipe -> {
+				if (recipeClass.isInstance(recipe.value()))
+					//noinspection unchecked - checked by if statement above
+					recipes.add((RecipeHolder<T>) recipe);
+			}, recipeType.get()));
 		}
 
-		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<? extends T>> recipeType, Function<Recipe<?>, T> converter) {
+		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<T>> recipeType, Function<RecipeHolder<?>, RecipeHolder<T>> converter) {
 			return addRecipeListConsumer(recipes -> CMRJEI.<T>consumeTypedRecipes(recipe -> recipes.add(converter.apply(recipe)), recipeType.get()));
 		}
 
-		public CategoryBuilder<T> addTypedRecipesIf(Supplier<RecipeType<? extends T>> recipeType, Predicate<Recipe<?>> pred) {
-			return addRecipeListConsumer(recipes -> CMRJEI.<T>consumeTypedRecipes(recipe -> {
+		public CategoryBuilder<T> addTypedRecipesIf(Supplier<RecipeType<? extends T>> recipeType, Predicate<RecipeHolder<?>> pred) {
+			return addRecipeListConsumer(recipes -> consumeTypedRecipesTyped(recipe -> {
 				if (pred.test(recipe)) {
 					recipes.add(recipe);
 				}
@@ -179,12 +183,12 @@ public class CMRJEI implements IModPlugin {
 		}
 
 		public CategoryBuilder<T> addTypedRecipesExcluding(Supplier<RecipeType<? extends T>> recipeType,
-			Supplier<RecipeType<? extends T>> excluded) {
+																	 Supplier<RecipeType<? extends T>> excluded) {
 			return addRecipeListConsumer(recipes -> {
-				List<Recipe<?>> excludedRecipes = getTypedRecipes(excluded.get());
-				CMRJEI.<T>consumeTypedRecipes(recipe -> {
-					for (Recipe<?> excludedRecipe : excludedRecipes) {
-						if (doInputsMatch(recipe, excludedRecipe)) {
+				List<RecipeHolder<?>> excludedRecipes = getTypedRecipes(excluded.get());
+				consumeTypedRecipesTyped(recipe -> {
+					for (RecipeHolder<?> excludedRecipe : excludedRecipes) {
+						if (doInputsMatch(recipe.value(), excludedRecipe.value())) {
 							return;
 						}
 					}
@@ -254,62 +258,81 @@ public class CMRJEI implements IModPlugin {
 					return recipes;
 				};
 			} else {
-				recipesSupplier = () -> Collections.emptyList();
+				recipesSupplier = Collections::emptyList;
 			}
 
 			CreateRecipeCategory.Info<T> info = new CreateRecipeCategory.Info<>(
 					new mezz.jei.api.recipe.RecipeType<>(CreateMoreRecipes.asResource(name), recipeClass),
-					Lang.translateDirect("recipe." + name), background, icon, recipesSupplier, catalysts);
+					CreateLang.translateDirect("recipe." + name), background, icon, recipesSupplier, catalysts);
 			CreateRecipeCategory<T> category = factory.create(info);
 			allCategories.add(category);
 			return category;
 		}
-	}
 
-	public static void consumeAllRecipes(Consumer<Recipe<?>> consumer) {
-		Minecraft.getInstance()
-			.getConnection()
-			.getRecipeManager()
-			.getRecipes()
-			.forEach(consumer);
-	}
+		private void consumeAllRecipesOfType(Consumer<RecipeHolder<T>> consumer) {
+			consumeAllRecipes(recipeHolder -> {
+				if (recipeClass.isInstance(recipeHolder.value())) {
+					//noinspection unchecked - this is checked by the if statement
+					consumer.accept((RecipeHolder<T>) recipeHolder);
+				}
+			});
+		}
 
-	public static <T extends Recipe<?>> void consumeTypedRecipes(Consumer<T> consumer, RecipeType<?> type) {
-		Map<ResourceLocation, Recipe<?>> map = Minecraft.getInstance()
-                .getConnection()
-                .getRecipeManager().recipes.get(type);
-		if (map != null) {
-			map.values().forEach(recipe -> consumer.accept((T) recipe));
+		private void consumeTypedRecipesTyped(Consumer<RecipeHolder<T>> consumer, RecipeType<?> type) {
+			consumeTypedRecipes(recipeHolder -> {
+				if (recipeClass.isInstance(recipeHolder.value())) {
+					//noinspection unchecked - this is checked by the if statement
+					consumer.accept((RecipeHolder<T>) recipeHolder);
+				}
+			}, type);
 		}
 	}
 
-	public static List<Recipe<?>> getTypedRecipes(RecipeType<?> type) {
-		List<Recipe<?>> recipes = new ArrayList<>();
+
+	public static void consumeAllRecipes(Consumer<? super RecipeHolder<?>> consumer) {
+		Minecraft.getInstance()
+				.getConnection()
+				.getRecipeManager()
+				.getRecipes()
+				.forEach(consumer);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <T extends Recipe<?>> void consumeTypedRecipes(Consumer<RecipeHolder<?>> consumer, RecipeType<?> type) {
+		List<? extends RecipeHolder<?>> map = Minecraft.getInstance()
+				.getConnection()
+				.getRecipeManager().getAllRecipesFor((RecipeType) type);
+		if (!map.isEmpty())
+			map.forEach(consumer);
+	}
+
+	public static List<RecipeHolder<?>> getTypedRecipes(RecipeType<?> type) {
+		List<RecipeHolder<?>> recipes = new ArrayList<>();
 		consumeTypedRecipes(recipes::add, type);
 		return recipes;
 	}
 
-	public static List<Recipe<?>> getTypedRecipesExcluding(RecipeType<?> type, Predicate<Recipe<?>> exclusionPred) {
-		List<Recipe<?>> recipes = getTypedRecipes(type);
+	public static List<RecipeHolder<?>> getTypedRecipesExcluding(RecipeType<?> type, Predicate<RecipeHolder<?>> exclusionPred) {
+		List<RecipeHolder<?>> recipes = getTypedRecipes(type);
 		recipes.removeIf(exclusionPred);
 		return recipes;
 	}
 
 	public static boolean doInputsMatch(Recipe<?> recipe1, Recipe<?> recipe2) {
 		if (recipe1.getIngredients()
-			.isEmpty()
-			|| recipe2.getIngredients()
+				.isEmpty()
+				|| recipe2.getIngredients()
 				.isEmpty()) {
 			return false;
 		}
 		ItemStack[] matchingStacks = recipe1.getIngredients()
-			.get(0)
-			.getItems();
+				.getFirst()
+				.getItems();
 		if (matchingStacks.length == 0) {
 			return false;
 		}
 		return recipe2.getIngredients()
-				.get(0)
+				.getFirst()
 				.test(matchingStacks[0]);
 	}
 

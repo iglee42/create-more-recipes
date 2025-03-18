@@ -59,8 +59,8 @@ public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanW
     }
 
     public static class CustomFanWrapper extends RecipeWrapper {
-        public CustomFanWrapper() {
-            super(new ItemStackHandler(1));
+        public CustomFanWrapper(ItemStackHandler handler) {
+            super(handler);
         }
     }
 }

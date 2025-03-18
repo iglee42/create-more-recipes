@@ -6,6 +6,7 @@ import com.simibubi.create.content.kinetics.fan.AirCurrent;
 import com.simibubi.create.content.kinetics.fan.EncasedFanBlockEntity;
 import com.simibubi.create.content.kinetics.fan.IAirCurrentSource;
 import com.simibubi.create.content.kinetics.fan.processing.AllFanProcessingTypes;
+import com.simibubi.create.content.kinetics.fan.processing.FanProcessing;
 import com.simibubi.create.content.kinetics.fan.processing.FanProcessingType;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import fr.iglee42.cmr.init.CMRFanProcessingTypes;
@@ -43,7 +44,7 @@ public class AirCurrentMixin {
         }
     }
 
-    @Inject(method = "lambda$tickAffectedHandlers$2",at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessing;applyProcessing(Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;Lnet/minecraft/world/level/Level;Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;)Lcom/simibubi/create/content/kinetics/belt/behaviour/TransportedItemStackHandlerBehaviour$TransportedResult;",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
+    @Inject(method = "lambda$tickAffectedHandlers$0",at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessing;applyProcessing(Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;Lnet/minecraft/world/level/Level;Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;)Lcom/simibubi/create/content/kinetics/belt/behaviour/TransportedItemStackHandlerBehaviour$TransportedResult;",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void cmr$tickHandlers(Level world, FanProcessingType processingType, TransportedItemStackHandlerBehaviour handler, TransportedItemStack transported, CallbackInfoReturnable<TransportedItemStackHandlerBehaviour.TransportedResult> cir){
         if (processingType instanceof CMRFanProcessingTypes.CustomizableFanType type){
             int dif = switch (direction.getAxis()){
@@ -52,7 +53,7 @@ public class AirCurrentMixin {
                 case Z -> handler.blockEntity.getBlockPos().get(Direction.Axis.Z) - source.getAirCurrentPos().get(Direction.Axis.Z);
             };
             if (dif < 0) dif = -dif;
-            if (transported.processedBy instanceof CMRFanProcessingTypes.CustomizableFanType && transported.processingTime == -1) transported.processedBy = AllFanProcessingTypes.NONE;
+            if (transported.processedBy instanceof CMRFanProcessingTypes.CustomizableFanType && transported.processingTime == -1) transported.processedBy = null;
             TransportedItemStackHandlerBehaviour.TransportedResult applyProcessing = type.applyProcessingHandlers(transported, world, processingType,direction,source.getAirCurrentPos(),dif);
             if (!applyProcessing.doesNothing() && source instanceof EncasedFanBlockEntity fan)
                 fan.award(AllAdvancements.FAN_PROCESSING);
