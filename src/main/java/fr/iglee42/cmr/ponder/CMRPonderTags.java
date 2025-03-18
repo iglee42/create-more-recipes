@@ -1,25 +1,28 @@
 package fr.iglee42.cmr.ponder;
 
-import com.simibubi.create.foundation.ponder.PonderRegistry;
-import com.simibubi.create.foundation.ponder.PonderTag;
-import com.simibubi.create.infrastructure.ponder.AllPonderTags;
-import fr.iglee42.cmr.init.CMRRegistries;
+import com.simibubi.create.infrastructure.ponder.AllCreatePonderTags;
+import com.tterrag.registrate.util.entry.RegistryEntry;
 import fr.iglee42.cmr.CreateMoreRecipes;
+import fr.iglee42.cmr.init.CMRRegistries;
+import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 
 public class CMRPonderTags {
 
 
-	private static PonderTag create(String id) {
-		return new PonderTag(CreateMoreRecipes.asResource(id));
+
+	private static ResourceLocation loc(String id) {
+		return CreateMoreRecipes.asResource(id);
 	}
 
+	public static void register(PonderTagRegistrationHelper<ResourceLocation> helper) {
+		PonderTagRegistrationHelper<RegistryEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+		PonderTagRegistrationHelper<ItemLike> itemHelper = helper.withKeyFunction(
+				RegisteredObjectsHelper::getKeyOrThrow);
 
-	public static void register() {
-
-
-		PonderRegistry.TAGS.forTag(AllPonderTags.ARM_TARGETS)
-						.add(CMRRegistries.SNOWMAN_COOLER);
-
+		HELPER.addToTag(AllCreatePonderTags.ARM_TARGETS).add(CMRRegistries.SNOWMAN_COOLER);
 
 
 	}

@@ -9,13 +9,16 @@
     "BasinRecipeMixin",
     "HeatConditionMixin",
     "MysteriousItemConversionCategoryMixin",
+    "ProcessingRecipeSerializerMixin",
+    "StockTickerBlockEntityMixin",
     "jei.BasinCategoryMixin",
     "jei.CommonCategoryMixin",
     "jei.MixingCategoryMixin",
     "jei.PackingCategoryMixin"
   ],
   "client": [
-    "AirFlowParticleMixin"
+    "AirFlowParticleMixin",
+    "StockKeeperRequestScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

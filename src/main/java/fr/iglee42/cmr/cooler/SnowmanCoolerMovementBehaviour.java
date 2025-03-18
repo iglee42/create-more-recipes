@@ -1,20 +1,20 @@
 package fr.iglee42.cmr.cooler;
 
-import com.jozufozu.flywheel.core.virtual.VirtualRenderWorld;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
-import com.simibubi.create.content.contraptions.behaviour.MovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.trains.entity.CarriageContraption;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
-import com.simibubi.create.foundation.utility.AngleHelper;
-import com.simibubi.create.foundation.utility.Iterate;
-import com.simibubi.create.foundation.utility.VecHelper;
-import com.simibubi.create.foundation.utility.animation.LerpedFloat;
-import com.simibubi.create.foundation.utility.animation.LerpedFloat.Chaser;
+import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
+import fr.iglee42.cmr.cooler.SnowmanCoolerBlock.HeatLevel;
+import net.createmod.catnip.animation.LerpedFloat;
+import net.createmod.catnip.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.math.VecHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -26,17 +26,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import fr.iglee42.cmr.cooler.SnowmanCoolerBlock.HeatLevel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 public class SnowmanCoolerMovementBehaviour implements MovementBehaviour {
 
-	@Override
-	public boolean renderAsNormalBlockEntity() {
-		return false;
-	}
-	
 	@Override
 	public ItemStack canBeDisabledVia(MovementContext context) {
 		return null;
@@ -46,9 +40,6 @@ public class SnowmanCoolerMovementBehaviour implements MovementBehaviour {
 	public void tick(MovementContext context) {
 		if (!context.world.isClientSide())
 			return;
-		if (!shouldRender(context))
-			return;
-
 		RandomSource r = context.world.getRandom();
 		Vec3 c = context.position;
 		Vec3 v = c.add(VecHelper.offsetRandomly(Vec3.ZERO, r, .125f)
@@ -66,10 +57,6 @@ public class SnowmanCoolerMovementBehaviour implements MovementBehaviour {
 
 	public void invalidate(MovementContext context) {
 		context.data.remove("Conductor");
-	}
-
-	private boolean shouldRender(MovementContext context) {
-		return true;
 	}
 
 	private LerpedFloat getHeadAngle(MovementContext context) {
@@ -119,13 +106,16 @@ public class SnowmanCoolerMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
+	public boolean disableBlockEntityRendering() {
+		return true;
+	}
+
+	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, MultiBufferSource buffer) {
-		if (!shouldRender(context))
-			return;
 		SnowmanCoolerRenderer.renderInContraption(context, renderWorld, matrices, buffer, getHeadAngle(context),
-			shouldRenderHat(context), LightTexture.FULL_BRIGHT);
+			shouldRenderHat(context));
 	}
 
 }

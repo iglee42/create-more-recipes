@@ -6,13 +6,14 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Axis;
+import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.compat.jei.category.animations.AnimatedKinetics;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
-import com.simibubi.create.foundation.gui.UIRenderHelper;
-import com.simibubi.create.foundation.utility.AnimationTickHolder;
 
 import fr.iglee42.cmr.init.CMRPartials;
 import fr.iglee42.cmr.init.CMRRegistries;
+import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.gui.UIRenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -55,10 +56,10 @@ public class AnimatedBlockSpout extends AnimatedKinetics {
 
 		matrixStack.pushPose();
 
-		blockElement(CMRPartials.BLOCK_SPOUT_TOP)
+		blockElement(AllPartialModels.SPOUT_TOP)
 			.scale(scale)
 			.render(graphics);
-		blockElement(CMRPartials.BLOCK_SPOUT_MIDDLE)
+		blockElement(AllPartialModels.SPOUT_MIDDLE)
 			.scale(scale)
 			.render(graphics);
 		matrixStack.translate(0, squeeze / 2f, 0);

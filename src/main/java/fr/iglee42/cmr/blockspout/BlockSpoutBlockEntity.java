@@ -1,15 +1,20 @@
 package fr.iglee42.cmr.blockspout;
 
-import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.AllBlockEntityTypes;
+import com.simibubi.create.api.behaviour.spouting.BlockSpoutingBehaviour;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
-import com.simibubi.create.foundation.utility.VecHelper;
 import fr.iglee42.cmr.init.CMRRecipeTypes;
+import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
+import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,8 +36,8 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
 
     public static final int TIME = 100;
     public int processingTicks;
+    public boolean sendSplash;
     SmartFluidTankBehaviour tank;
-    boolean sendParticles;
     public BlockSpoutingRecipe recipe;
 
 
@@ -67,7 +72,7 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
             notifyUpdate();
         }
         if (processingTicks > 7 && processingTicks < 93){
-            sendParticles = true;
+            sendSplash = true;
             notifyUpdate();
         }
         if (processingTicks == 7 && recipe != null){
@@ -130,9 +135,9 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
     protected void write(CompoundTag compoundTag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(compoundTag, registries, clientPacket);
         compoundTag.putInt("ProcessingTicks", processingTicks);
-        if (sendParticles && clientPacket) {
-            compoundTag.putBoolean("SpawnParticles", true);
-            sendParticles = false;
+        if (sendSplash && clientPacket) {
+            compoundTag.putBoolean("Splash", true);
+            sendSplash = false;
         }
     }
 
@@ -142,9 +147,8 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
         processingTicks = compoundTag.getInt("ProcessingTicks");
         if (!clientPacket)
             return;
-        if (compoundTag.contains("SpawnParticles"))
+        if (compoundTag.contains("Splash"))
             spawnParticles();
-
     }
     
 
@@ -155,16 +159,8 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        /*LANG.translate("gui.goggles.printer").forGoggles(tooltip);
-        if (copyTarget == null) {
-            LANG.translate("gui.goggles.printer.no_target")
-                    .style(ChatFormatting.GRAY)
-                    .forGoggles(tooltip, 1);
-        } else {
-            printEntry.addToGoggleTooltip(tooltip,isPlayerSneaking,copyTarget);
-        }*/
-        containedFluidTooltip(tooltip, isPlayerSneaking, getCapability(ForgeCapabilities.FLUID_HANDLER));
-        return true;
+        return containedFluidTooltip(tooltip, isPlayerSneaking,
+                level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition, null));
     }
 
 }

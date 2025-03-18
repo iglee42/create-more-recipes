@@ -1,13 +1,13 @@
 package fr.iglee42.cmr.blockspout;
 
-import com.jozufozu.flywheel.core.PartialModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
-import com.simibubi.create.foundation.render.CachedBufferer;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import fr.iglee42.cmr.init.CMRPartials;
+import net.createmod.catnip.render.CachedBuffers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -20,7 +20,7 @@ public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlock
         super(context);
     }
 
-    private static final PartialModel[] PARTS = { AllPartialModels.SPOUT_TOP,AllPartialModels.SPOUT_MIDDLE };
+    private static final PartialModel[] BITS = { AllPartialModels.SPOUT_TOP,AllPartialModels.SPOUT_MIDDLE };
 
     @Override
     protected void renderSafe(BlockSpoutBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
@@ -28,21 +28,30 @@ public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlock
         SmartFluidTankBehaviour tank = be.tank;
         if (tank == null)
             return;
-        //Render fluid
         SmartFluidTankBehaviour.TankSegment primaryTank = tank.getPrimaryTank();
         FluidStack fluidStack = primaryTank.getRenderedFluid();
         float level = primaryTank.getFluidLevel()
                 .getValue(partialTicks);
 
         if (!fluidStack.isEmpty() && level != 0) {
+            boolean top = fluidStack.getFluid()
+                    .getFluidType()
+                    .isLighterThanAir();
+
             level = Math.max(level, 0.175f);
             float min = 2.5f / 16f;
             float max = min + (11 / 16f);
             float yOffset = (11 / 16f) * level;
+
             ms.pushPose();
-            ms.translate(0, yOffset, 0);
-            FluidRenderer.renderFluidBox(fluidStack, min, min - yOffset, min, max, min, max, buffer, ms, light,
-                    false);
+            if (!top) ms.translate(0, yOffset, 0);
+            else ms.translate(0, max - min, 0);
+
+            FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(),
+                    min, min - yOffset, min,
+                    max, min, max,
+                    buffer, ms, light, false, true, fluidStack.getComponentsPatch());
+
             ms.popPose();
         }
         //Render partials
@@ -61,19 +70,18 @@ public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlock
         }
 
         BlockState blockState = be.getBlockState();
-        CachedBufferer
+        CachedBuffers
                 .partial(CMRPartials.BLOCK_SPOUT_BOTTOM, blockState)
                 .translate(0, squeeze / 2f, 0)
                 .light(light)
                 .renderInto(ms, buffer.getBuffer(RenderType.solid()));
 
         ms.pushPose();
-        for (PartialModel bit : PARTS) {
-            CachedBufferer
+        for (PartialModel bit : BITS) {
+            CachedBuffers
                     .partial(bit, be.getBlockState())
                     .light(light)
                     .renderInto(ms, buffer.getBuffer(RenderType.solid()));
-            ms.translate(0, (float) 1 /16,0);
         }
         ms.popPose();
 

@@ -1,39 +1,32 @@
 package fr.iglee42.cmr.init;
 
-import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllTags;
-import com.simibubi.create.Create;
-import com.simibubi.create.content.kinetics.BlockStressDefaults;
-import com.simibubi.create.content.kinetics.crafter.*;
+import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
 import com.simibubi.create.foundation.data.AssetLookup;
-import com.simibubi.create.foundation.data.BlockStateGen;
-import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
-import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlock;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
 import fr.iglee42.cmr.blockspout.BlockSpoutRenderer;
 import fr.iglee42.cmr.cooler.*;
-import fr.iglee42.cmr.crafter.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.client.model.generators.ModelFile;
 
-import static com.simibubi.create.AllInteractionBehaviours.interactionBehaviour;
-import static com.simibubi.create.AllMovementBehaviours.movementBehaviour;
-import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
-import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
+import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
+import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static fr.iglee42.cmr.CreateMoreRecipes.REGISTRATE;
 
 public class CMRRegistries {
 
-
+    static {
+        REGISTRATE.setCreativeTab(CMRCreativeModeTabs.MAIN_TAB);
+    }
 
     public static final BlockEntry<SnowmanCoolerBlock> SNOWMAN_COOLER =
             REGISTRATE.block("snowman_cooler", SnowmanCoolerBlock::new)
@@ -44,7 +37,12 @@ public class CMRRegistries {
                     .tag(AllTags.AllBlockTags.FAN_TRANSPARENT.tag)
                     .blockstate((a,b)->{})
                     .onRegister(movementBehaviour(new SnowmanCoolerMovementBehaviour()))
-                    .onRegister(interactionBehaviour(new SnowmanCoolerInteractionBehaviour()))
+                    .onRegister(interactionBehaviour(new ConductorBlockInteractionBehavior() {
+                        @Override
+                        public boolean isValidConductor(BlockState state) {
+                            return true;
+                        }
+                    }))
                     .item()
                     .model(AssetLookup.customBlockItemModel("snowman_cooler", "block_with_blaze"))
                     .build()
@@ -85,6 +83,7 @@ public class CMRRegistries {
 
     public static final BlockEntityEntry<SnowmanCoolerBlockEntity> COOLER = REGISTRATE
             .blockEntity("blaze_heater", SnowmanCoolerBlockEntity::new)
+            .visual(() -> SnowmanCoolerVisual::new, false)
             .validBlocks(SNOWMAN_COOLER)
             .renderer(() -> SnowmanCoolerRenderer::new)
             .register();

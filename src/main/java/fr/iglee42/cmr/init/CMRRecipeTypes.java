@@ -1,109 +1,179 @@
 package fr.iglee42.cmr.init;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllRecipeTypes;
+import com.simibubi.create.AllTags;
 import com.simibubi.create.AllTags.AllRecipeSerializerTags;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;
+import com.simibubi.create.Create;
+import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
+import com.simibubi.create.content.processing.recipe.*;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
-import com.simibubi.create.foundation.utility.Lang;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import fr.iglee42.cmr.CreateMoreRecipes;
 import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
+import fr.iglee42.cmr.recipes.CMRProcessingRecipeSerializer;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
+import net.createmod.catnip.lang.Lang;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public enum CMRRecipeTypes implements IRecipeTypeInfo {
+public enum CMRRecipeTypes implements IRecipeTypeInfo,StringRepresentable {
     CUSTOM_FAN(CustomFanRecipe::new),
     BLOCK_SPOUTING(BlockSpoutingRecipe::new);
 
-    private final ResourceLocation id;
-    private final RegistryObject<RecipeSerializer<?>> serializerObject;
-    private final @Nullable RegistryObject<RecipeType<?>> typeObject;
+    public final ResourceLocation id;
+    public final Supplier<RecipeSerializer<?>> serializerSupplier;
+    private final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> serializerObject;
+    @Nullable
+    private final DeferredHolder<RecipeType<?>, RecipeType<?>> typeObject;
     private final Supplier<RecipeType<?>> type;
 
-    private CMRRecipeTypes(Supplier serializerSupplier, Supplier typeSupplier, boolean registerType) {
-        String name = Lang.asId(this.name());
-        this.id = CreateMoreRecipes.asResource(name);
-        this.serializerObject = CMRRecipeTypes.Registers.SERIALIZER_REGISTER.register(name, serializerSupplier);
+    private boolean isProcessingRecipe;
+
+    public static final Codec<CMRRecipeTypes> CODEC = StringRepresentable.fromEnum(CMRRecipeTypes::values);
+
+    CMRRecipeTypes(Supplier<RecipeSerializer<?>> serializerSupplier, Supplier<RecipeType<?>> typeSupplier, boolean registerType) {
+        String name = Lang.asId(name());
+        id = CreateMoreRecipes.asResource(name);
+        this.serializerSupplier = serializerSupplier;
+        serializerObject = Registers.SERIALIZER_REGISTER.register(name, serializerSupplier);
         if (registerType) {
-            this.typeObject = CMRRecipeTypes.Registers.TYPE_REGISTER.register(name, typeSupplier);
-            this.type = this.typeObject;
+            typeObject = Registers.TYPE_REGISTER.register(name, typeSupplier);
+            type = typeObject;
         } else {
-            this.typeObject = null;
-            this.type = typeSupplier;
+            typeObject = null;
+            type = typeSupplier;
         }
-
+        isProcessingRecipe = false;
     }
 
-    private CMRRecipeTypes(Supplier serializerSupplier) {
-        String name = Lang.asId(this.name());
-        this.id = CreateMoreRecipes.asResource(name);
-        this.serializerObject = CMRRecipeTypes.Registers.SERIALIZER_REGISTER.register(name, serializerSupplier);
-        this.typeObject = CMRRecipeTypes.Registers.TYPE_REGISTER.register(name, () -> {
-            return RecipeType.simple(this.id);
-        });
-        this.type = this.typeObject;
+    CMRRecipeTypes(Supplier<RecipeSerializer<?>> serializerSupplier) {
+        String name = Lang.asId(name());
+        id = CreateMoreRecipes.asResource(name);
+        this.serializerSupplier = serializerSupplier;
+        serializerObject = Registers.SERIALIZER_REGISTER.register(name, serializerSupplier);
+        typeObject = Registers.TYPE_REGISTER.register(name, () -> RecipeType.simple(id));
+        type = typeObject;
+        isProcessingRecipe = false;
     }
 
-    private CMRRecipeTypes(ProcessingRecipeBuilder.ProcessingRecipeFactory processingFactory) {
-        this(() -> {
-            return new ProcessingRecipeSerializer(processingFactory);
-        });
+    CMRRecipeTypes(ProcessingRecipeBuilder.ProcessingRecipeFactory<?> processingFactory) {
+        this(() -> new CMRProcessingRecipeSerializer<>(processingFactory));
+        isProcessingRecipe = true;
     }
 
+    @ApiStatus.Internal
     public static void register(IEventBus modEventBus) {
-        CMRRecipeTypes.Registers.SERIALIZER_REGISTER.register(modEventBus);
-        CMRRecipeTypes.Registers.TYPE_REGISTER.register(modEventBus);
+        ShapedRecipePattern.setCraftingSize(9, 9);
+        Registers.SERIALIZER_REGISTER.register(modEventBus);
+        Registers.TYPE_REGISTER.register(modEventBus);
     }
 
+    @Override
     public ResourceLocation getId() {
-        return this.id;
+        return id;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public <T extends RecipeSerializer<?>> T getSerializer() {
-        return (T) this.serializerObject.get();
+        return (T) serializerObject.get();
     }
 
-    public <T extends RecipeType<?>> T getType() {
-        return (T) this.type.get();
+    @SuppressWarnings("unchecked")
+    @Override
+    public <I extends RecipeInput, R extends Recipe<I>> RecipeType<R> getType() {
+        return (RecipeType<R>) type.get();
     }
 
-    public <C extends Container, T extends Recipe<C>> Optional<T> find(C inv, Level world) {
-        return world.getRecipeManager().getRecipeFor(this.getType(), inv, world);
+    public <I extends RecipeInput, R extends Recipe<I>> Optional<RecipeHolder<R>> find(I inv, Level world) {
+        return world.getRecipeManager()
+                .getRecipeFor(getType(), inv, world);
     }
 
-    public static boolean shouldIgnoreInAutomation(Recipe<?> recipe) {
-        RecipeSerializer<?> serializer = recipe.getSerializer();
-        if (serializer != null && AllRecipeSerializerTags.AUTOMATION_IGNORE.matches(serializer)) {
-            return true;
-        } else {
-            return !AllRecipeTypes.CAN_BE_AUTOMATED.test(recipe);
-        }
+
+    @Override
+    public @NotNull String getSerializedName() {
+        return id.toString();
+    }
+
+    public <T extends ProcessingRecipe<?>> MapCodec<T> processingCodec() {
+        if (!isProcessingRecipe)
+            throw new AssertionError("CMRRecipeTypes#processingCodec called on "+name()+", which is not a processing recipe");
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Codec.either(Ingredient.CODEC, FluidIngredient.CODEC).listOf().fieldOf("ingredients").forGetter(i -> {
+                    List<Either<Ingredient, FluidIngredient>> list = new ArrayList<>();
+                    i.getIngredients().forEach(o -> list.add(Either.left(o)));
+                    i.getFluidIngredients().forEach(o -> list.add(Either.right(o)));
+                    return list;
+                }),
+                Codec.either(ProcessingOutput.CODEC, FluidStack.CODEC).listOf().fieldOf("results").forGetter(i -> {
+                    List<Either<ProcessingOutput, FluidStack>> list = new ArrayList<>();
+                    i.getRollableResults().forEach(o -> list.add(Either.left(o)));
+                    i.getFluidResults().forEach(o -> list.add(Either.right(o)));
+                    return list;
+                }),
+                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("processing_time", 0).forGetter(T::getProcessingDuration),
+                StringRepresentable.fromEnum(HeatCondition::values).optionalFieldOf("heat_requirement", HeatCondition.NONE).forGetter(T::getRequiredHeat)
+        ).apply(instance, (ingredients, results, processingTime, heatRequirement) -> {
+            if (!(serializerSupplier.get() instanceof ProcessingRecipeSerializer processingRecipeSerializer))
+                throw new RuntimeException("Not a processing recipe serializer " + serializerSupplier.get());
+
+            ProcessingRecipeBuilder<T> builder = new ProcessingRecipeBuilder<T>(processingRecipeSerializer.getFactory(), this.id);
+
+            NonNullList<Ingredient> ingredientList = NonNullList.create();
+            NonNullList<FluidIngredient> fluidIngredientList = NonNullList.create();
+
+            NonNullList<ProcessingOutput> processingOutputList = NonNullList.create();
+            NonNullList<FluidStack> fluidStackOutputList = NonNullList.create();
+
+            for (Either<Ingredient, FluidIngredient> either : ingredients) {
+                either.left().ifPresent(ingredientList::add);
+                either.right().ifPresent(fluidIngredientList::add);
+            }
+
+            for (Either<ProcessingOutput, FluidStack> either : results) {
+                either.left().ifPresent(processingOutputList::add);
+                either.right().ifPresent(fluidStackOutputList::add);
+            }
+
+            builder.withItemIngredients(ingredientList)
+                    .withItemOutputs(processingOutputList)
+                    .withFluidIngredients(fluidIngredientList)
+                    .withFluidOutputs(fluidStackOutputList)
+                    .duration(processingTime)
+                    .requiresHeat(heatRequirement);
+
+            return builder.build();
+        }));
     }
 
     private static class Registers {
-        private static final DeferredRegister<RecipeSerializer<?>> SERIALIZER_REGISTER;
-        private static final DeferredRegister<RecipeType<?>> TYPE_REGISTER;
-
-        private Registers() {
-        }
-
-        static {
-            SERIALIZER_REGISTER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CreateMoreRecipes.MODID);
-            TYPE_REGISTER = DeferredRegister.create(Registries.RECIPE_TYPE, CreateMoreRecipes.MODID);
-        }
+        private static final DeferredRegister<RecipeSerializer<?>> SERIALIZER_REGISTER = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, CreateMoreRecipes.MODID);
+        private static final DeferredRegister<RecipeType<?>> TYPE_REGISTER = DeferredRegister.create(Registries.RECIPE_TYPE, CreateMoreRecipes.MODID);
     }
+
 }
