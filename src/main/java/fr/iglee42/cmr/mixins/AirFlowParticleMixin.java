@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class AirFlowParticleMixin {
 
 
-    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;morphAirFlow(Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType$AirFlowParticleAccess;Lnet/minecraft/util/RandomSource;)V",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT)
+    @Inject(method = "tick",remap = false,at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;morphAirFlow(Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType$AirFlowParticleAccess;Lnet/minecraft/util/RandomSource;)V",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT)
     private void cmr$tick(CallbackInfo ci, AirCurrent airCurrent, Vec3 directionVec, Vec3 motion, double distance, FanProcessingType inType){
         if (inType instanceof CMRFanProcessingTypes.CustomizableFanType type){
 

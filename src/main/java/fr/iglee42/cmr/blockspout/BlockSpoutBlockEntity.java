@@ -20,10 +20,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +39,18 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
     public BlockSpoutBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         processingTicks = -1;
+    }
+
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.FluidHandler.BLOCK,
+                CMRRegistries.BLOCK_SPOUT_BE.get(),
+                (be, context) -> {
+                    if (context != Direction.DOWN)
+                        return be.tank.getCapability();
+                    return null;
+                }
+        );
     }
 
     @Override
@@ -79,10 +90,10 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
                     .getAllRecipesFor(CMRRecipeTypes.BLOCK_SPOUTING.getType())
                     .stream()
                     .filter(r -> {
-                        BlockSpoutingRecipe bsr =(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r);
+                        BlockSpoutingRecipe bsr =(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r.value());
                         return bsr.testBlock(level.getBlockState(worldPosition.below(2))) && bsr.getRequiredFluid().test(getCurrentFluidInTank());
                     })
-                    .map(r->(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r))
+                    .map(r->(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r.value()))
                     .findFirst();
 
             if (foundRecipe.isEmpty()){
@@ -94,13 +105,6 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
         }
     }
 
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == ForgeCapabilities.FLUID_HANDLER && side != Direction.DOWN)
-            return tank.getCapability()
-                    .cast();
-        return super.getCapability(cap, side);
-    }
     
 
     protected void spawnParticles() {
@@ -123,8 +127,8 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
 
 
     @Override
-    protected void write(CompoundTag compoundTag, boolean clientPacket) {
-        super.write(compoundTag, clientPacket);
+    protected void write(CompoundTag compoundTag, HolderLookup.Provider registries, boolean clientPacket) {
+        super.write(compoundTag, registries, clientPacket);
         compoundTag.putInt("ProcessingTicks", processingTicks);
         if (sendParticles && clientPacket) {
             compoundTag.putBoolean("SpawnParticles", true);
@@ -133,13 +137,8 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public void writeSafe(CompoundTag tag) {
-        super.writeSafe(tag);
-    }
-
-    @Override
-    protected void read(CompoundTag compoundTag, boolean clientPacket) {
-        super.read(compoundTag, clientPacket);
+    protected void read(CompoundTag compoundTag, HolderLookup.Provider registries, boolean clientPacket) {
+        super.read(compoundTag, registries, clientPacket);
         processingTicks = compoundTag.getInt("ProcessingTicks");
         if (!clientPacket)
             return;

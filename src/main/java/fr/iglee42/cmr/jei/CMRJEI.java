@@ -116,7 +116,7 @@ public class CMRJEI implements IModPlugin {
 		private IDrawable background;
 		private IDrawable icon;
 
-		private final List<Consumer<List<T>>> recipeListConsumers = new ArrayList<>();
+		private final List<Consumer<List<RecipeHolder<T>>>> recipeListConsumers = new ArrayList<>();
 		private final List<Supplier<? extends ItemStack>> catalysts = new ArrayList<>();
 
 		public CategoryBuilder(Class<? extends T> recipeClass) {
@@ -128,29 +128,29 @@ public class CMRJEI implements IModPlugin {
 			return this;
 		}
 
-		public CategoryBuilder<T> enableWhen(Function<CRecipes, ConfigBool> configValue) {
+		public CategoryBuilder<T> enableWhen(Function<CRecipes, ConfigBase.ConfigBool> configValue) {
 			predicate = c -> configValue.apply(c).get();
 			return this;
 		}
 
-		public CategoryBuilder<T> addRecipeListConsumer(Consumer<List<T>> consumer) {
+		public CategoryBuilder<T> addRecipeListConsumer(Consumer<List<RecipeHolder<T>>> consumer) {
 			recipeListConsumers.add(consumer);
 			return this;
 		}
 
-		public CategoryBuilder<T> addRecipes(Supplier<Collection<? extends T>> collection) {
+		public CategoryBuilder<T> addRecipes(Supplier<Collection<? extends RecipeHolder<T>>> collection) {
 			return addRecipeListConsumer(recipes -> recipes.addAll(collection.get()));
 		}
 
-		public CategoryBuilder<T> addAllRecipesIf(Predicate<Recipe<?>> pred) {
-			return addRecipeListConsumer(recipes -> consumeAllRecipes(recipe -> {
-				if (pred.test(recipe)) {
-					recipes.add((T) recipe);
-				}
+		@SuppressWarnings("unchecked")
+		public CategoryBuilder<T> addAllRecipesIf(Predicate<RecipeHolder<T>> pred) {
+			return addRecipeListConsumer(recipes -> consumeAllRecipesOfType(recipe -> {
+				if (pred.test(recipe))
+					recipes.add(recipe);
 			}));
 		}
 
-		public CategoryBuilder<T> addAllRecipesIf(Predicate<Recipe<?>> pred, Function<Recipe<?>, T> converter) {
+		public CategoryBuilder<T> addAllRecipesIf(Predicate<RecipeHolder<?>> pred, Function<RecipeHolder<?>, RecipeHolder<T>> converter) {
 			return addRecipeListConsumer(recipes -> consumeAllRecipes(recipe -> {
 				if (pred.test(recipe)) {
 					recipes.add(converter.apply(recipe));
@@ -195,10 +195,10 @@ public class CMRJEI implements IModPlugin {
 
 		public CategoryBuilder<T> removeRecipes(Supplier<RecipeType<? extends T>> recipeType) {
 			return addRecipeListConsumer(recipes -> {
-				List<Recipe<?>> excludedRecipes = getTypedRecipes(recipeType.get());
+				List<RecipeHolder<?>> excludedRecipes = getTypedRecipes(recipeType.get());
 				recipes.removeIf(recipe -> {
-					for (Recipe<?> excludedRecipe : excludedRecipes)
-						if (doInputsMatch(recipe, excludedRecipe) && doOutputsMatch(recipe, excludedRecipe))
+					for (RecipeHolder<?> excludedRecipe : excludedRecipes)
+						if (doInputsMatch(recipe.value(), excludedRecipe.value()) && doOutputsMatch(recipe.value(), excludedRecipe.value()))
 							return true;
 					return false;
 				});
@@ -245,11 +245,11 @@ public class CMRJEI implements IModPlugin {
 		}
 
 		public CreateRecipeCategory<T> build(String name, CreateRecipeCategory.Factory<T> factory) {
-			Supplier<List<T>> recipesSupplier;
+			Supplier<List<RecipeHolder<T>>> recipesSupplier;
 			if (predicate.test(AllConfigs.server().recipes)) {
 				recipesSupplier = () -> {
-					List<T> recipes = new ArrayList<>();
-					for (Consumer<List<T>> consumer : recipeListConsumers)
+					List<RecipeHolder<T>> recipes = new ArrayList<>();
+					for (Consumer<List<RecipeHolder<T>>> consumer : recipeListConsumers)
 						consumer.accept(recipes);
 					return recipes;
 				};

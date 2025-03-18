@@ -2,19 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "S": {
-      "item": "create:spout"
+    "A": {
+      "item": "minecraft:snow_block"
     },
-    "P": {
-      "tag": "forge:plates/copper"
+    "I": {
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
-    "S",
-    "P"
+    " I ",
+    "IAI",
+    " I "
   ],
   "result": {
-    "item": "cmr:block_spout"
+    "id": "cmr:empty_snowman_cooler"
   },
   "show_notification": true
 }

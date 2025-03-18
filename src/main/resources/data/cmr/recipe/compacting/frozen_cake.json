@@ -2,7 +2,7 @@
   "type": "create:compacting",
   "ingredients": [
     {
-      "tag": "forge:eggs"
+      "tag": "c:eggs"
     },
     {
       "item": "minecraft:sugar"
@@ -13,7 +13,9 @@
   ],
   "results": [
     {
-      "item": "cmr:frozen_cake_base"
+      "item": {
+        "id": "cmr:frozen_cake_base"
+      }
     }
   ]
 }

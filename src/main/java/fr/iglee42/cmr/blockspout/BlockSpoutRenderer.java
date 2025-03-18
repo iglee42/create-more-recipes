@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlockEntity> {
     public BlockSpoutRenderer(BlockEntityRendererProvider.Context context) {

@@ -47,15 +47,18 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.FakePlayer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IBE<SnowmanCoolerBlockEntity>, IWrenchable {
 
 	public static final EnumProperty<HeatLevel> HEAT_LEVEL = EnumProperty.create("snowman", HeatLevel.class);
+
+	public static final MapCodec<SnowmanCoolerBlock> CODEC = simpleCodec(SnowmanCoolerBlock::new);
+
 
 	public SnowmanCoolerBlock(Properties properties) {
 		super(properties);
@@ -90,26 +93,26 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
-		BlockHitResult blockRayTraceResult) {
-		ItemStack heldItem = player.getItemInHand(hand);
+	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		HeatLevel heat = state.getValue(HEAT_LEVEL);
 
-		if (AllItems.GOGGLES.isIn(heldItem))
-			return onBlockEntityUse(world, pos, bbte -> {
+		if (AllItems.GOGGLES.isIn(stack))
+			return onBlockEntityUseItemOn(level, pos, bbte -> {
 				if (bbte.goggles)
-					return InteractionResult.PASS;
+					return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 				bbte.goggles = true;
 				bbte.notifyUpdate();
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			});
 
-		if (heldItem.isEmpty())
-			return onBlockEntityUse(world, pos, bbte -> {
+		if (be != null && be.stockKeeper) {
+		if (stack.isEmpty())
+			return onBlockEntityUseItemOn(level, pos, bbte -> {
 				if (!bbte.goggles)
-					return InteractionResult.PASS;
+					return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 				bbte.goggles = false;
 				bbte.notifyUpdate();
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			});
 
 //		if (heat == HeatLevel.NONE) {
@@ -129,10 +132,10 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 		boolean forceOverflow = !(player instanceof FakePlayer);
 
 		InteractionResultHolder<ItemStack> res =
-			tryInsert(state, world, pos, heldItem, doNotConsume, forceOverflow, false);
+			tryInsert(state, level, pos, stack, doNotConsume, forceOverflow, false);
 		ItemStack leftover = res.getObject();
-		if (!world.isClientSide && !doNotConsume && !leftover.isEmpty()) {
-			if (heldItem.isEmpty()) {
+		if (!level.isClientSide && !doNotConsume && !leftover.isEmpty()) {
+			if (stack.isEmpty()) {
 				player.setItemInHand(hand, leftover);
 			} else if (!player.getInventory()
 				.add(leftover)) {
@@ -140,7 +143,7 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 			}
 		}
 
-		return res.getResult() == InteractionResult.SUCCESS ? InteractionResult.SUCCESS : InteractionResult.PASS;
+		return res.getResult() == InteractionResult.SUCCESS ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	public static InteractionResultHolder<ItemStack> tryInsert(BlockState state, Level world, BlockPos pos,
@@ -208,7 +211,7 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
+	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
 		return false;
 	}
 
@@ -222,6 +225,9 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 		world.playLocalSound((double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F),
 			(double) ((float) pos.getZ() + 0.5F), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.BLOCKS,
 			0.5F + random.nextFloat(), random.nextFloat() * 0.7F + 0.6F, false);
+	@Override
+	protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+		return CODEC;
 	}
 
 	public static HeatLevel getHeatLevelOf(BlockState blockState) {
@@ -248,8 +254,10 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 	}
 
     public enum HeatLevel implements StringRepresentable {
-		IDLE, FADING, COOLING, FREEZING,
-        ;
+		IDLE, FADING, COOLING, FREEZING;
+
+		public static final Codec<BlazeBurnerBlock.HeatLevel> CODEC = StringRepresentable.fromEnum(BlazeBurnerBlock.HeatLevel::values)
+		;
 
         public static HeatLevel byIndex(int index) {
             return values()[index];

@@ -11,14 +11,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -36,8 +36,7 @@ public class CreateMoreRecipes {
 
     public static final Map<HeatCondition,String> CUSTOM_HEAT_CONDITIONS = new HashMap<>();
 
-    public CreateMoreRecipes() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public CreateMoreRecipes(IEventBus modEventBus) {
 
         REGISTRATE.registerEventListeners(modEventBus);
 
@@ -52,15 +51,15 @@ public class CreateMoreRecipes {
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
+        modEventBus.addListener(this::registerCapabilities);
 
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,()-> CMRPartials::init);
+        RegistrateDistExecutor.unsafeRunWhenOn(Dist.CLIENT,()-> CMRPartials::init);
 
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public static ResourceLocation asResource(String id) {
-        return new ResourceLocation(MODID,id);
+        return ResourceLocation.fromNamespaceAndPath(MODID,id);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -70,6 +69,9 @@ public class CreateMoreRecipes {
 
         CMRPonderTags.register();
         PonderIndex.register();
+    }
+    private void registerCapabilities(RegisterCapabilitiesEvent event){
+        BlockSpoutBlockEntity.registerCapabilities(event);
     }
     public static BlockPos getPosOfCatalyst(BlockPos fanPos, Level level, Direction direction,int distance){
         BlockPos currentPos = fanPos;

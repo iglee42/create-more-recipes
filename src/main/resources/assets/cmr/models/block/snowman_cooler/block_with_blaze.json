@@ -1,6 +1,6 @@
 {
 	"parent": "block/block",
-	"loader": "forge:obj",
+	"loader": "neoforge:obj",
 	"flip_v": true,
 	"model": "cmr:models/block/snowman_cooler/item.obj",
 	"textures": {

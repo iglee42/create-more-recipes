@@ -15,13 +15,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -79,7 +79,6 @@ public class CMRCreativeModeTabs {
 		private static Function<Item, ItemStack> makeStackFunc() {
 			Map<Item, Function<Item, ItemStack>> factories = new Reference2ReferenceOpenHashMap<>();
 
-			Map<ItemProviderEntry<?>, Function<Item, ItemStack>> simpleFactories = Map.of(
 
 			);
 
@@ -99,7 +98,7 @@ public class CMRCreativeModeTabs {
 		private static Function<Item, CreativeModeTab.TabVisibility> makeVisibilityFunc() {
 			Map<Item, CreativeModeTab.TabVisibility> visibilities = new Reference2ObjectOpenHashMap<>();
 
-			Map<ItemProviderEntry<?>, CreativeModeTab.TabVisibility> simpleVisibilities = Map.of(
+			Map<ItemProviderEntry<?, ?>, CreativeModeTab.TabVisibility> simpleVisibilities = Map.of(
 			);
 
 			simpleVisibilities.forEach((entry, factory) -> {

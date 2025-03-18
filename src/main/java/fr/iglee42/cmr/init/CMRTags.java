@@ -5,7 +5,11 @@ import java.util.Collections;
 import com.simibubi.create.foundation.utility.Lang;
 
 import fr.iglee42.cmr.CreateMoreRecipes;
+import net.createmod.catnip.lang.Lang;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
@@ -21,38 +25,34 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-
 import static fr.iglee42.cmr.init.CMRTags.NameSpace.MOD;
 
 public class CMRTags {
-	public static <T> TagKey<T> optionalTag(IForgeRegistry<T> registry,
-		ResourceLocation id) {
-		return registry.tags()
-			.createOptionalTagKey(id, Collections.emptySet());
+	public static <T> TagKey<T> optionalTag(Registry<T> registry,
+											ResourceLocation id) {
+		return TagKey.create(registry.key(), id);
 	}
 
-	public static <T> TagKey<T> forgeTag(IForgeRegistry<T> registry, String path) {
-		return optionalTag(registry, new ResourceLocation("forge", path));
+	public static <T> TagKey<T> commonTag(Registry<T> registry, String path) {
+		return optionalTag(registry, ResourceLocation.fromNamespaceAndPath("c", path));
 	}
 
-	public static TagKey<Block> forgeBlockTag(String path) {
-		return forgeTag(ForgeRegistries.BLOCKS, path);
+	public static TagKey<Block> commonBlockTag(String path) {
+		return commonTag(BuiltInRegistries.BLOCK, path);
 	}
 
-	public static TagKey<Item> forgeItemTag(String path) {
-		return forgeTag(ForgeRegistries.ITEMS, path);
+	public static TagKey<Item> commonItemTag(String path) {
+		return commonTag(BuiltInRegistries.ITEM, path);
 	}
 
-	public static TagKey<Fluid> forgeFluidTag(String path) {
-		return forgeTag(ForgeRegistries.FLUIDS, path);
+	public static TagKey<Fluid> commonFluidTag(String path) {
+		return commonTag(BuiltInRegistries.FLUID, path);
 	}
 
 	public enum NameSpace {
 
 		MOD(CreateMoreRecipes.MODID, false, true),
-		FORGE("forge"),
+		COMMON("c"),
 		CREATE("create")
 
 		;
@@ -96,9 +96,9 @@ public class CMRTags {
 		}
 
 		CMRBlockTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
-			ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace.id, path == null ? Lang.asId(name()) : path);
 			if (optional) {
-				tag = optionalTag(ForgeRegistries.BLOCKS, id);
+				tag = optionalTag(BuiltInRegistries.BLOCK, id);
 			} else {
 				tag = BlockTags.create(id);
 			}
@@ -149,9 +149,9 @@ public class CMRTags {
 		}
 
 		CMRItemTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
-			ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace.id, path == null ? Lang.asId(name()) : path);
 			if (optional) {
-				tag = optionalTag(ForgeRegistries.ITEMS, id);
+				tag = optionalTag(BuiltInRegistries.ITEM, id);
 			} else {
 				tag = ItemTags.create(id);
 			}
@@ -195,9 +195,9 @@ public class CMRTags {
 		}
 
 		CMRFluidTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
-			ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace.id, path == null ? Lang.asId(name()) : path);
 			if (optional) {
-				tag = optionalTag(ForgeRegistries.FLUIDS, id);
+				tag = optionalTag(BuiltInRegistries.FLUID, id);
 			} else {
 				tag = FluidTags.create(id);
 			}
@@ -242,9 +242,9 @@ public class CMRTags {
 		}
 
 		CMREntityTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
-			ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace.id, path == null ? Lang.asId(name()) : path);
 			if (optional) {
-				tag = optionalTag(ForgeRegistries.ENTITY_TYPES, id);
+				tag = optionalTag(BuiltInRegistries.ENTITY_TYPE, id);
 			} else {
 				tag = TagKey.create(Registries.ENTITY_TYPE, id);
 			}
@@ -287,9 +287,9 @@ public class CMRTags {
 		}
 
 		CMRRecipeSerializerTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
-			ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace.id, path == null ? Lang.asId(name()) : path);
 			if (optional) {
-				tag = optionalTag(ForgeRegistries.RECIPE_SERIALIZERS, id);
+				tag = optionalTag(BuiltInRegistries.RECIPE_SERIALIZER, id);
 			} else {
 				tag = TagKey.create(Registries.RECIPE_SERIALIZER, id);
 			}
@@ -297,7 +297,8 @@ public class CMRTags {
 		}
 
 		public boolean matches(RecipeSerializer<?> recipeSerializer) {
-			return ForgeRegistries.RECIPE_SERIALIZERS.getHolder(recipeSerializer).orElseThrow().is(tag);
+			ResourceKey<RecipeSerializer<?>> key = BuiltInRegistries.RECIPE_SERIALIZER.getResourceKey(recipeSerializer).orElseThrow();
+			return BuiltInRegistries.RECIPE_SERIALIZER.getHolder(key).orElseThrow().is(tag);
 		}
 
 		private static void init() {}

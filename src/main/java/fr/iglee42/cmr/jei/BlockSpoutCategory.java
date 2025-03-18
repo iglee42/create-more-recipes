@@ -24,9 +24,9 @@ import com.simibubi.create.foundation.utility.RegisteredObjects;
 
 import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IIngredientManager;
@@ -64,8 +64,8 @@ public class BlockSpoutCategory extends CreateRecipeCategory<BlockSpoutingRecipe
 		builder
 				.addSlot(RecipeIngredientRole.INPUT, 27, 32)
 				.setBackground(getRenderedSlot(), -1, -1)
-				.addIngredients(ForgeTypes.FLUID_STACK, withImprovedVisibility(recipe.getRequiredFluid().getMatchingFluidStacks()))
-				.addTooltipCallback(addFluidTooltip(recipe.getRequiredFluid().getRequiredAmount()));
+				.addIngredients(NeoForgeTypes.FLUID_STACK, withImprovedVisibility(recipe.getRequiredFluid().getMatchingFluidStacks()))
+				.addRichTooltipCallback(addFluidTooltip(recipe.getRequiredFluid().getRequiredAmount()));
 		builder
 				.addSlot(RecipeIngredientRole.OUTPUT, 132, 51)
 				.setBackground(getRenderedSlot(), -1, -1)

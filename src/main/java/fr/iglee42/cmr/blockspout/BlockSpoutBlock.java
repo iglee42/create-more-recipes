@@ -19,7 +19,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("deprecation")
 public class BlockSpoutBlock extends Block implements IWrenchable, IBE<BlockSpoutBlockEntity> {
     public BlockSpoutBlock(Properties pProperties) {
         super(pProperties);
@@ -54,7 +53,7 @@ public class BlockSpoutBlock extends Block implements IWrenchable, IBE<BlockSpou
     }
 
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter reader, BlockPos pos, PathComputationType type) {
+    protected boolean isPathfindable(BlockState p_60475_, PathComputationType p_60478_) {
         return false;
     }
 

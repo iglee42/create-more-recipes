@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class AnimatedBlockSpout extends AnimatedKinetics {
 
@@ -75,16 +75,14 @@ public class AnimatedBlockSpout extends AnimatedKinetics {
 				.render(graphics);
 
 		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
-		BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance()
-			.getBuilder());
 		matrixStack.pushPose();
 		UIRenderHelper.flipForGuiRender(matrixStack);
 		matrixStack.scale(16, 16, 16);
 		float from = 3f / 16f;
 		float to = 17f / 16f;
-		FluidRenderer.renderFluidBox(fluids.get(0), from, from, from, to, to, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false);
+		FluidStack fluidStack = fluids.get(0);
+		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, from, from, to, to, to, graphics.bufferSource(), matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getComponentsPatch());
 		matrixStack.popPose();
-		buffer.endBatch();
 		Lighting.setupFor3DItems();
 
 		matrixStack.popPose();

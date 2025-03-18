@@ -28,8 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock.HeatLevel;
 import org.joml.Vector3f;
@@ -141,7 +139,7 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
 	@Override
-	public void write(CompoundTag compound, boolean clientPacket) {
+	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (!isCreative) {
 			compound.putInt("fuelLevel", activeFuel.ordinal());
 			compound.putInt("burnTimeRemaining", remainingBurnTime);
@@ -151,17 +149,17 @@ public class SnowmanCoolerBlockEntity extends SmartBlockEntity {
 			compound.putBoolean("Goggles", true);
 		if (hat)
 			compound.putBoolean("TrainHat", true);
-		super.write(compound, clientPacket);
+		super.write(compound, registries, clientPacket);
 	}
 
 	@Override
-	protected void read(CompoundTag compound, boolean clientPacket) {
+	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		activeFuel = FuelType.values()[compound.getInt("fuelLevel")];
 		remainingBurnTime = compound.getInt("burnTimeRemaining");
 		isCreative = compound.getBoolean("isCreative");
 		goggles = compound.contains("Goggles");
 		hat = compound.contains("TrainHat");
-		super.read(compound, clientPacket);
+		super.read(compound, registries, clientPacket);
 	}
 
 	public SnowmanCoolerBlock.HeatLevel getHeatLevelFromBlock() {

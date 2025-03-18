@@ -72,7 +72,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
         public boolean isValidAt(Level level, BlockPos blockPos) {
             Block block = level.getBlockState(blockPos).getBlock();
             return level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().anyMatch(r->{
-                ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r;
+                ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
                 CustomFanRecipe r2 = (CustomFanRecipe) r1;
                 return r2.getProcessingBlock().contains(block);
             });
@@ -122,7 +122,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance))){
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance)).getBlock();
                 return level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().anyMatch(r->{
-                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r;
+                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
                     return r2.matches(RECIPE_WRAPPER,level,block);
                 });
@@ -154,12 +154,12 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
             RECIPE_WRAPPER.setItem(0, itemStack);
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,dir, (int) entityDistance))) {
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos, level, dir, (int) entityDistance)).getBlock();
-                Optional<Recipe<Container>> recipe = level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().filter(r -> {
-                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r;
+                Optional<RecipeHolder<Recipe<RecipeInput>>> recipe = level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().filter(r -> {
+                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
                     return r2.matches(RECIPE_WRAPPER,level,block);
                 }).findFirst();
-                return recipe.isPresent() ? RecipeApplier.applyRecipeOn(level, itemStack, recipe.get()) : null;
+                return recipe.map(recipeRecipeHolder -> RecipeApplier.applyRecipeOn(level, itemStack, recipeRecipeHolder)).orElse(null);
             }
             return null;
         }

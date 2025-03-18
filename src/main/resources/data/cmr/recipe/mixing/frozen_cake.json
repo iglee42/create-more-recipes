@@ -1,6 +1,6 @@
 {
   "type": "create:mixing",
-  "heatRequirement": "cooled",
+  "heat_requirement": "cooled",
   "ingredients": [
     {
       "item": "cmr:frozen_cake_base"
@@ -9,13 +9,16 @@
       "item": "minecraft:blue_ice"
     },
     {
+      "type": "fluid_stack",
       "fluid": "minecraft:water",
       "amount": 1000
     }
   ],
   "results": [
     {
-      "item": "cmr:frozen_cake"
+      "item": {
+        "id": "cmr:frozen_cake"
+      }
     }
   ]
 }
