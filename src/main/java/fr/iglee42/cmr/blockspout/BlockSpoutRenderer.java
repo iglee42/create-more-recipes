@@ -50,7 +50,7 @@ public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlock
             FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(),
                     min, min - yOffset, min,
                     max, min, max,
-                    buffer, ms, light, false, true, fluidStack.getComponentsPatch());
+                    buffer, ms, light, false, true, fluidStack.getTag());
 
             ms.popPose();
         }

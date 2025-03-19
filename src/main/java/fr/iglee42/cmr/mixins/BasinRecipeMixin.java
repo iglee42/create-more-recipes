@@ -34,11 +34,11 @@ public class BasinRecipeMixin {
                     return;
                 }
                 SnowmanCoolerBlock.HeatLevel coolHeat = blockState.getValue(SnowmanCoolerBlock.HEAT_LEVEL);
-                if (condition.getSerializedName().equals(CreateMoreRecipes.coldId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.COOLING)){
+                if (condition.serialize().equals(CreateMoreRecipes.coldId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.COOLING)){
                     cir.setReturnValue(false);
                     return;
                 }
-                if (condition.getSerializedName().equals(CreateMoreRecipes.freezeId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.FREEZING)){
+                if (condition.serialize().equals(CreateMoreRecipes.freezeId) && !coolHeat.isAtLeast(SnowmanCoolerBlock.HeatLevel.FREEZING)){
                     cir.setReturnValue(false);
                 }
             }

@@ -161,7 +161,7 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         return containedFluidTooltip(tooltip, isPlayerSneaking,
-                level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition, null));
+                getCapability(ForgeCapabilities.FLUID_HANDLER));
     }
 
 }

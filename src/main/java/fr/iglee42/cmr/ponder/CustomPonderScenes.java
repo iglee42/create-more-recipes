@@ -12,6 +12,7 @@ import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.foundation.element.InputWindowElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.SnowGolem;
@@ -133,7 +134,7 @@ public class CustomPonderScenes {
         Class<DeployerBlockEntity> teType = DeployerBlockEntity.class;
         scene.world().modifyBlockEntityNBT(util.select().position(4, 1, 2), teType,
                 nbt -> nbt.put("HeldItem", CMRRegistries.FROZEN_CAKE.asStack()
-                        .save(scene.world().getHolderLookupProvider())));
+                        .save(new CompoundTag())));
 
         scene.world().showSection(util.select().fromTo(3, 0, 5, 2, 0, 5), Direction.UP);
         scene.idle(5);

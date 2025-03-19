@@ -9,7 +9,6 @@
     "BasinRecipeMixin",
     "HeatConditionMixin",
     "MysteriousItemConversionCategoryMixin",
-    "ProcessingRecipeSerializerMixin",
     "StockTickerBlockEntityMixin",
     "jei.BasinCategoryMixin",
     "jei.CommonCategoryMixin",

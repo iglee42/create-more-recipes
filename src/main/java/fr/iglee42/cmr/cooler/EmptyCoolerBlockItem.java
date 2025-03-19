@@ -57,7 +57,7 @@ public class EmptyCoolerBlockItem extends BlockItem {
 
         List<SpawnData> possibleSpawns = spawner.spawnPotentials.unwrap()
                 .stream()
-                .map(WeightedEntry.Wrapper::data)
+                .map(WeightedEntry.Wrapper::getData)
                 .toList();
 
         if (possibleSpawns.isEmpty()) {

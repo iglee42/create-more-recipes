@@ -3,9 +3,6 @@ package fr.iglee42.cmr.init;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllCreativeModeTabs;
-import com.simibubi.create.AllDataComponents;
-import com.simibubi.create.AllItems;
-import com.simibubi.create.content.equipment.armor.BacktankUtil;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.TagDependentIngredientItem;
@@ -13,10 +10,8 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import fr.iglee42.cmr.CreateMoreRecipes;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
@@ -25,18 +20,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CMRCreativeModeTabs {
@@ -82,9 +78,9 @@ public class CMRCreativeModeTabs {
 		}
 
 		private final boolean addItems;
-		private final DeferredHolder<CreativeModeTab, CreativeModeTab> tabFilter;
+		private final RegistryObject<CreativeModeTab> tabFilter;
 
-		public RegistrateDisplayItemsGenerator(boolean addItems, DeferredHolder<CreativeModeTab, CreativeModeTab> tabFilter) {
+		public RegistrateDisplayItemsGenerator(boolean addItems, RegistryObject<CreativeModeTab> tabFilter) {
 			this.addItems = addItems;
 			this.tabFilter = tabFilter;
 		}
@@ -92,13 +88,13 @@ public class CMRCreativeModeTabs {
 		private static Predicate<Item> makeExclusionPredicate() {
 			Set<Item> exclusions = new ReferenceOpenHashSet<>();
 
-			List<ItemProviderEntry<?, ?>> simpleExclusions = List.of(
+			List<ItemProviderEntry<?>> simpleExclusions = List.of(
 			);
 
 			List<ItemEntry<TagDependentIngredientItem>> tagDependentExclusions = List.of(
 			);
 
-			for (ItemProviderEntry<?, ?> entry : simpleExclusions) {
+			for (ItemProviderEntry<?> entry : simpleExclusions) {
 				exclusions.add(entry.asItem());
 			}
 
@@ -115,10 +111,10 @@ public class CMRCreativeModeTabs {
 		private static List<ItemOrdering> makeOrderings() {
 			List<ItemOrdering> orderings = new ReferenceArrayList<>();
 
-			Map<ItemProviderEntry<?, ?>, ItemProviderEntry<?, ?>> simpleBeforeOrderings = Map.of(
+			Map<ItemProviderEntry<?>, ItemProviderEntry<?>> simpleBeforeOrderings = Map.of(
 			);
 
-			Map<ItemProviderEntry<?, ?>, ItemProviderEntry<?, ?>> simpleAfterOrderings = Map.of(
+			Map<ItemProviderEntry<?>, ItemProviderEntry<?>> simpleAfterOrderings = Map.of(
 			);
 
 			simpleBeforeOrderings.forEach((entry, otherEntry) -> {
@@ -196,7 +192,7 @@ public class CMRCreativeModeTabs {
 
 		private List<Item> collectBlocks(Predicate<Item> exclusionPredicate) {
 			List<Item> items = new ReferenceArrayList<>();
-			for (RegistryEntry<Block, Block> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.BLOCK)) {
+			for (RegistryEntry<Block> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.BLOCK)) {
 				if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
 					continue;
 				Item item = entry.get()
@@ -212,7 +208,7 @@ public class CMRCreativeModeTabs {
 
 		private List<Item> collectItems(Predicate<Item> exclusionPredicate) {
 			List<Item> items = new ReferenceArrayList<>();
-			for (RegistryEntry<Item, Item> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.ITEM)) {
+			for (RegistryEntry<Item> entry : CreateMoreRecipes.REGISTRATE.getAll(Registries.ITEM)) {
 				if (!CreateRegistrate.isInCreativeTab(entry, tabFilter))
 					continue;
 				Item item = entry.get();

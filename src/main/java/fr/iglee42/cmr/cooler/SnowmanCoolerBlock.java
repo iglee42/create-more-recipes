@@ -1,37 +1,22 @@
 package fr.iglee42.cmr.cooler;
 
-import java.util.Random;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerInteractionHandler;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
-
 import fr.iglee42.cmr.init.CMRRegistries;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -57,9 +42,9 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.FakePlayer;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -112,12 +97,12 @@ public class SnowmanCoolerBlock extends HorizontalDirectionalBlock implements IB
 				return InteractionResult.SUCCESS;
 			});
 
-		SnowmanCoolerBlockEntity be = getBlockEntity(level, pos);
+		SnowmanCoolerBlockEntity be = getBlockEntity(world, pos);
 		if (be != null && be.stockKeeper) {
-			StockTickerBlockEntity stockTicker = SnowmanCoolerBlockEntity.getStockTicker(level, pos);
+			StockTickerBlockEntity stockTicker = SnowmanCoolerBlockEntity.getStockTicker(world, pos);
 			if (stockTicker != null)
-				StockTickerInteractionHandler.interactWithLogisticsManagerAt(player, level, stockTicker.getBlockPos());
-			return ItemInteractionResult.SUCCESS;
+				StockTickerInteractionHandler.interactWithLogisticsManagerAt(player, world, stockTicker.getBlockPos());
+			return InteractionResult.SUCCESS;
 		}
 
 		if (heldItem.isEmpty())

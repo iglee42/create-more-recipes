@@ -44,7 +44,7 @@ public class AirCurrentMixin {
         }
     }
 
-    @Inject(method = "lambda$tickAffectedHandlers$0",at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessing;applyProcessing(Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;Lnet/minecraft/world/level/Level;Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;)Lcom/simibubi/create/content/kinetics/belt/behaviour/TransportedItemStackHandlerBehaviour$TransportedResult;",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
+    @Inject(method = "lambda$tickAffectedHandlers$2",at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessing;applyProcessing(Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;Lnet/minecraft/world/level/Level;Lcom/simibubi/create/content/kinetics/fan/processing/FanProcessingType;)Lcom/simibubi/create/content/kinetics/belt/behaviour/TransportedItemStackHandlerBehaviour$TransportedResult;",shift = At.Shift.AFTER),locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void cmr$tickHandlers(Level world, FanProcessingType processingType, TransportedItemStackHandlerBehaviour handler, TransportedItemStack transported, CallbackInfoReturnable<TransportedItemStackHandlerBehaviour.TransportedResult> cir){
         if (processingType instanceof CMRFanProcessingTypes.CustomizableFanType type){
             int dif = switch (direction.getAxis()){

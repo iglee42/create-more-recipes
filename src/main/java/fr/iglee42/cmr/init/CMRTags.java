@@ -2,6 +2,7 @@ package fr.iglee42.cmr.init;
 
 
 import fr.iglee42.cmr.CreateMoreRecipes;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -20,6 +21,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
+
+import java.util.Collections;
 
 import static fr.iglee42.cmr.init.CMRTags.NameSpace.MOD;
 

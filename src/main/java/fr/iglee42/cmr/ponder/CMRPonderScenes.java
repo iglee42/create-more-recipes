@@ -11,7 +11,7 @@ public class CMRPonderScenes {
 
 	public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
 
-		PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+		PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
 		HELPER.forComponents(CMRRegistries.EMPTY_SNOWMAN_COOLER).addStoryBoard("empty_snowman_cooler",CustomPonderScenes::emptySnowmanCooler);
 		HELPER.forComponents(CMRRegistries.SNOWMAN_COOLER).addStoryBoard("snowman_cooler",CustomPonderScenes::snowmanCooler,AllCreatePonderTags.ARM_TARGETS);
