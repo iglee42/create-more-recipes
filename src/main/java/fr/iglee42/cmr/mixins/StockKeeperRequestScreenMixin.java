@@ -72,12 +72,12 @@ public class StockKeeperRequestScreenMixin extends AbstractSimiContainerScreen<S
     }
 
 
-    @Inject(method = "containerTick",remap = false,at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;closeContainer()V",shift= At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
+    @Inject(method = "containerTick",remap = true,at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;closeContainer()V",shift= At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void cmr$dontCloseForCooler(CallbackInfo ci, boolean allEmpty, List clientStockSnapshot, LivingEntity keeper, BlazeBurnerBlockEntity blazeKeeper){
        if (cmr$cooler.get() != null && !cmr$cooler.get().isRemoved()) ci.cancel();
     }
 
-    @Inject(method = "renderBg",remap = false,at = @At(value = "INVOKE", target = "Ljava/lang/ref/WeakReference;get()Ljava/lang/Object;",shift= At.Shift.BEFORE,ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
+    @Inject(method = "renderBg",remap = true,at = @At(value = "INVOKE", target = "Ljava/lang/ref/WeakReference;get()Ljava/lang/Object;",shift= At.Shift.BEFORE,ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void cmr$showCooler(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY, CallbackInfo ci, PoseStack ms, float currentScroll, Couple hoveredSlot, int x, int y, int entitySizeOffset, LivingEntity keeper){
         SnowmanCoolerBlockEntity cooler = cmr$cooler.get();
         if (cooler != null && !cooler.isRemoved()){
