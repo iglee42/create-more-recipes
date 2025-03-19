@@ -33,10 +33,6 @@ public class HeatConditionMixin {
 
     @Inject(method = "<clinit>",at = @At("TAIL"))
     private static void cmr$clinit(CallbackInfo ci){
-        for (HeatCondition v : $VALUES) {
-            System.out.println(v.name());
-        }
-
         Map<String,Integer> custom = Map.of(CreateMoreRecipes.coldId,0xE3F3F3, CreateMoreRecipes.freezeId,0x82E1FF);
 
 
