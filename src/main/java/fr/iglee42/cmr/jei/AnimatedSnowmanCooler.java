@@ -44,7 +44,7 @@ public class AnimatedSnowmanCooler extends AnimatedKinetics {
 			.render(graphics);
 
 		PartialModel blaze =
-			heatLevel == HeatLevel.FREEZING ? CMRPartials.SNOWMAN_SUPER: CMRPartials.SNOWMAN_ACTIVE;
+			heatLevel == HeatLevel.FREEZING ? CMRPartials.SNOWMAN_SUPER_ACTIVE: CMRPartials.SNOWMAN_ACTIVE;
 
 		blockElement(blaze).atLocal(1, 1.8, 1)
 			.rotate(0, 180, 0)
