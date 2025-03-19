@@ -35,11 +35,8 @@ public class BlockSpoutCategory extends CreateRecipeCategory<BlockSpoutingRecipe
 				.addIngredients(recipe.getIngredients()
 						.get(0));
 
-		builder
-				.addSlot(RecipeIngredientRole.INPUT, 27, 32)
-				.setBackground(getRenderedSlot(), -1, -1)
-				.addIngredients(NeoForgeTypes.FLUID_STACK, withImprovedVisibility(recipe.getRequiredFluid().getMatchingFluidStacks()))
-				.addRichTooltipCallback(addFluidTooltip(recipe.getRequiredFluid().getRequiredAmount()));
+		addFluidSlot(builder,27,32,recipe.getRequiredFluid());
+
 		builder
 				.addSlot(RecipeIngredientRole.OUTPUT, 132, 51)
 				.setBackground(getRenderedSlot(), -1, -1)
