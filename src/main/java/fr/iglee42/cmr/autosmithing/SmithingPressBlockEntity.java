@@ -1,10 +1,12 @@
 package fr.iglee42.cmr.autosmithing;
 
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
+import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.CreateAdvancement;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
@@ -13,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -79,6 +82,13 @@ public class SmithingPressBlockEntity extends BasinOperatingBlockEntity implemen
 		templateCapability.invalidate();
 		additionCapability.invalidate();
 		super.invalidate();
+	}
+
+	@Override
+	public void destroy() {
+		ItemHelper.dropContents(level, worldPosition, templateInv);
+		ItemHelper.dropContents(level, worldPosition, additionInv);
+		super.destroy();
 	}
 
 	public SmithingBehaviour getSmithingBehaviour() {

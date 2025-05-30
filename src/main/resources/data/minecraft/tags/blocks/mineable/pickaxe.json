@@ -2,7 +2,8 @@
   "replace": false,
   "values": [
     "cmr:snowman_cooler",
-    "cmr:empty_snowman_cooler"
-
+    "cmr:empty_snowman_cooler",
+    "cmr:block_spout",
+    "cmr:smithing_press"
   ]
 }
