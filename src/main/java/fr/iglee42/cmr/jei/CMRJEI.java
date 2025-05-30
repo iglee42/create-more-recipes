@@ -20,6 +20,7 @@ import fr.iglee42.cmr.recipes.BlockSpoutingRecipe;
 import fr.iglee42.cmr.recipes.CustomFanRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -106,6 +107,7 @@ public class CMRJEI implements IModPlugin {
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
 		allCategories.forEach(c -> c.registerCatalysts(registration));
+		registration.addRecipeCatalyst(CMRRegistries.SMITHING_PRESS, RecipeTypes.SMITHING);
 	}
 
 
