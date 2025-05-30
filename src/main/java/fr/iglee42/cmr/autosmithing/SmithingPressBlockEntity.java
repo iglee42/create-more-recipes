@@ -5,10 +5,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
+import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.processing.basin.BasinOperatingBlockEntity;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.CreateAdvancement;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.recipe.RecipeApplier;
 
@@ -67,6 +69,13 @@ public class SmithingPressBlockEntity extends BasinOperatingBlockEntity implemen
 		smithingBehaviour = new SmithingBehaviour(this);
 		behaviours.add(smithingBehaviour);
 
+	}
+
+	@Override
+	public void destroy() {
+		ItemHelper.dropContents(level, worldPosition, templateInv);
+		ItemHelper.dropContents(level, worldPosition, additionInv);
+		super.destroy();
 	}
 
 	public SmithingBehaviour getSmithingBehaviour() {
