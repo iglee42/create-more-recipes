@@ -23,6 +23,8 @@ public class CMRPonderTags {
 				CatnipServices.REGISTRIES::getKeyOrThrow);
 
 		HELPER.addToTag(AllCreatePonderTags.ARM_TARGETS).add(CMRRegistries.SNOWMAN_COOLER);
+		HELPER.addToTag(AllCreatePonderTags.KINETIC_APPLIANCES).add(CMRRegistries.SMITHING_PRESS);
+		HELPER.addToTag(AllCreatePonderTags.FLUIDS).add(CMRRegistries.BLOCK_SPOUT);
 
 
 	}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "cmr:block/smithing_press/block",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "cmr:block/smithing_press/block"
+    },
+    "facing=south": {
+      "model": "cmr:block/smithing_press/block",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "cmr:block/smithing_press/block",
+      "y": 270
+    }
+  }
+}
