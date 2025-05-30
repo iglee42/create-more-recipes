@@ -1,17 +1,12 @@
 package fr.iglee42.cmr.autosmithing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-
-import net.createmod.catnip.nbt.NBTHelper;
 import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SmithingBehaviour extends BeltProcessingBehaviour {
 
@@ -57,28 +55,28 @@ public class SmithingBehaviour extends BeltProcessingBehaviour {
 	}
 
 	@Override
-	public void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+	public void read(CompoundTag compound, boolean clientPacket) {
 		running = compound.getBoolean("Running");
 		finished = compound.getBoolean("Finished");
 		prevRunningTicks = runningTicks = compound.getInt("Ticks");
-		super.read(compound, registries, clientPacket);
+		super.read(compound, clientPacket);
 
 		if (clientPacket) {
 			NBTHelper.iterateCompoundList(compound.getList("ParticleItems", Tag.TAG_COMPOUND),
-				c -> particleItems.add(ItemStack.parseOptional(registries, c)));
+					c -> particleItems.add(ItemStack.of(c)));
 			spawnParticles();
 		}
 	}
 
 	@Override
-	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+	public void write(CompoundTag compound, boolean clientPacket) {
 		compound.putBoolean("Running", running);
 		compound.putBoolean("Finished", finished);
 		compound.putInt("Ticks", runningTicks);
-		super.write(compound, registries, clientPacket);
+		super.write(compound, clientPacket);
 
 		if (clientPacket) {
-			compound.put("ParticleItems", NBTHelper.writeCompoundList(particleItems, s -> (CompoundTag) s.saveOptional(registries)));
+			compound.put("ParticleItems", NBTHelper.writeCompoundList(particleItems, ItemStack::serializeNBT));
 			particleItems.clear();
 		}
 	}

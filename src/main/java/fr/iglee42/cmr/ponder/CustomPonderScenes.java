@@ -2,20 +2,30 @@ package fr.iglee42.cmr.ponder;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.FluidFX;
+import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.gui.AllIcons;
+import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
+import fr.iglee42.cmr.autosmithing.SmithingPressBlockEntity;
+import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
 import fr.iglee42.cmr.init.CMRRegistries;
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.catnip.math.VecHelper;
 import net.createmod.ponder.api.PonderPalette;
+import net.createmod.ponder.api.element.ElementLink;
+import net.createmod.ponder.api.element.WorldSectionElement;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.scene.Selection;
 import net.createmod.ponder.foundation.element.InputWindowElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +36,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fluids.FluidStack;
 
 public class CustomPonderScenes {
 

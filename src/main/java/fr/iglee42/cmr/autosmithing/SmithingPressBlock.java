@@ -1,18 +1,16 @@
 package fr.iglee42.cmr.autosmithing;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.base.HorizontalKineticBlock;
 import com.simibubi.create.content.processing.basin.BasinBlock;
 import com.simibubi.create.foundation.block.IBE;
-
 import fr.iglee42.cmr.init.CMRRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -57,29 +55,29 @@ public class SmithingPressBlock extends HorizontalKineticBlock implements IBE<Sm
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		ItemStack heldByPlayer = stack.copy();
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		ItemStack heldByPlayer = player.getItemInHand(hand).copy();
 
-		if (AllItems.WRENCH.is(heldByPlayer)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if (AllItems.WRENCH.is(heldByPlayer)) return InteractionResult.PASS;
 		if (level.isClientSide)
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 
 		withBlockEntityDo(level, pos, be -> {
 			ItemStack heldByDeployer = be.getInvForSide(hitResult.getDirection()).getItem(0);
 			if (heldByDeployer.isEmpty() && heldByPlayer.isEmpty())
 				return;
 			if (be.getInvForSide(hitResult.getDirection()).equals(be.templateInv)){
-				if (!heldByPlayer.isEmpty() && level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream().noneMatch(r->r.value().isTemplateIngredient(heldByPlayer))) return;
+				if (!heldByPlayer.isEmpty() && level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream().noneMatch(r->r.isTemplateIngredient(heldByPlayer))) return;
 			}
 			if (be.getInvForSide(hitResult.getDirection()).equals(be.additionInv)){
-				if (!heldByPlayer.isEmpty() &&level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream().noneMatch(r->r.value().isAdditionIngredient(heldByPlayer))) return;
+				if (!heldByPlayer.isEmpty() &&level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING).stream().noneMatch(r->r.isAdditionIngredient(heldByPlayer))) return;
 			}
 
 			player.setItemInHand(hand, heldByDeployer);
 			be.getInvForSide(hitResult.getDirection()).setItem(0, heldByPlayer);
 			be.sendData();
 		});
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -104,9 +102,9 @@ public class SmithingPressBlock extends HorizontalKineticBlock implements IBE<Sm
 		return CMRRegistries.SMITHING_PRESS_BE.get();
 	}
 
+
 	@Override
-	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+	public boolean isPathfindable(BlockState p_60475_, BlockGetter p_60476_, BlockPos p_60477_, PathComputationType p_60478_) {
 		return false;
 	}
-
 }
