@@ -6,6 +6,7 @@ import com.simibubi.create.content.kinetics.fan.EncasedFanBlockEntity;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.RegistrateDistExecutor;
+import fr.iglee42.cmr.autosmithing.SmithingPressBlockEntity;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
 import fr.iglee42.cmr.init.*;
 import fr.iglee42.cmr.ponder.CMRPonderPlugin;
@@ -58,6 +59,7 @@ public class CreateMoreRecipes {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(this::registerEvent);
+        modEventBus.addListener(SmithingPressBlockEntity::registerCapabilities);
         if (FMLEnvironment.dist == Dist.CLIENT)modEventBus.addListener(this::clientSetup);
 
 

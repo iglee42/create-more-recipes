@@ -2,11 +2,20 @@ package fr.iglee42.cmr.init;
 
 import com.simibubi.create.AllTags;
 import com.simibubi.create.api.behaviour.interaction.ConductorBlockInteractionBehavior;
+import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.content.kinetics.press.MechanicalPressBlock;
+import com.simibubi.create.content.processing.AssemblyOperatorBlockItem;
 import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
+import com.simibubi.create.infrastructure.config.CStress;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import fr.iglee42.cmr.autosmithing.SmithingPressBlock;
+import fr.iglee42.cmr.autosmithing.SmithingPressBlockEntity;
+import fr.iglee42.cmr.autosmithing.SmithingPressRenderer;
+import fr.iglee42.cmr.autosmithing.SmithingPressVisual;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlock;
 import fr.iglee42.cmr.blockspout.BlockSpoutBlockEntity;
 import fr.iglee42.cmr.blockspout.BlockSpoutRenderer;
@@ -19,6 +28,8 @@ import net.minecraft.world.level.material.MapColor;
 
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
+import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static fr.iglee42.cmr.CreateMoreRecipes.REGISTRATE;
 
@@ -69,7 +80,17 @@ public class CMRRegistries {
                     .model(AssetLookup.customBlockItemModel("snowman_cooler", "block"))
                     .build()
                     .register();
-
+    public static final BlockEntry<SmithingPressBlock> SMITHING_PRESS =
+            REGISTRATE.block("smithing_press", SmithingPressBlock::new)
+                    .initialProperties(SharedProperties::stone)
+                    .properties(p -> p.noOcclusion()
+                            .mapColor(MapColor.PODZOL))
+                    .transform(axeOrPickaxe())
+                    .blockstate(BlockStateGen.horizontalBlockProvider(true))
+                    .onRegister(b-> BlockStressValues.IMPACTS.register(b,()->8.0d))
+                    .item(AssemblyOperatorBlockItem::new)
+                    .transform(customItemModel())
+                    .register();
 
     public static final ItemEntry<Item> FROZEN_CAKE_BASE =
             REGISTRATE.item("frozen_cake_base", Item::new)
@@ -93,6 +114,14 @@ public class CMRRegistries {
             .validBlocks(BLOCK_SPOUT)
             .renderer(() -> BlockSpoutRenderer::new)
             .register();
+
+    public static final BlockEntityEntry<SmithingPressBlockEntity> SMITHING_PRESS_BE = REGISTRATE
+            .blockEntity("smithing_press", SmithingPressBlockEntity::new)
+            .visual(()-> SmithingPressVisual::new)
+            .validBlocks(SMITHING_PRESS)
+            .renderer(() -> SmithingPressRenderer::new)
+            .register();
+
 
 
 
