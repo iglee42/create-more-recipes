@@ -14,6 +14,7 @@ import fr.iglee42.cmr.init.CMRPartials;
 import fr.iglee42.cmr.init.CMRRegistries;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.gui.UIRenderHelper;
+import net.createmod.catnip.platform.ForgeCatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -84,7 +85,7 @@ public class AnimatedBlockSpout extends AnimatedKinetics {
 		float from = 3f / 16f;
 		float to = 17f / 16f;
 		FluidStack fluidStack = fluids.get(0);
-		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, from, from, to, to, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getTag());
+		ForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, from, from, from, to, to, to, graphics.bufferSource(), matrixStack, LightTexture.FULL_BRIGHT, false, true);
 		matrixStack.popPose();
 		buffer.endBatch();
 		Lighting.setupFor3DItems();
