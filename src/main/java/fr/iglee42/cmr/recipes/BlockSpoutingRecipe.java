@@ -4,26 +4,29 @@ import java.util.List;
 
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
 import fr.iglee42.cmr.init.CMRRecipeTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
-public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
+public class BlockSpoutingRecipe extends StandardProcessingRecipe<SingleRecipeInput> {
 
 	public BlockSpoutingRecipe(ProcessingRecipeParams params) {
 		super(CMRRecipeTypes.BLOCK_SPOUTING, params);
 	}
 
 	@Override
-	public boolean matches(RecipeWrapper inv, Level p_77569_2_) {
+	public boolean matches(SingleRecipeInput inv, Level p_77569_2_) {
 		return ingredients.get(0)
 			.test(inv.getItem(0));
 	}
@@ -60,7 +63,7 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 
 	public FluidIngredient getRequiredFluid() {
 		if (fluidIngredients.isEmpty())
-			throw new IllegalStateException("Filling Recipe: " + id.toString() + " has no fluid ingredient!");
+			throw new IllegalStateException("Filling Recipe has no fluid ingredient!");
 		return fluidIngredients.get(0);
 	}
 
@@ -77,6 +80,5 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 			return results.subList(1, results.size());
 		return results;
 	}
-
 
 }

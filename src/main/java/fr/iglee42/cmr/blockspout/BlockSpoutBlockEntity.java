@@ -4,6 +4,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.api.behaviour.spouting.BlockSpoutingBehaviour;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
@@ -96,10 +97,10 @@ public class BlockSpoutBlockEntity extends SmartBlockEntity implements IHaveGogg
                     .getAllRecipesFor(CMRRecipeTypes.BLOCK_SPOUTING.getType())
                     .stream()
                     .filter(r -> {
-                        BlockSpoutingRecipe bsr =(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r.value());
+                        BlockSpoutingRecipe bsr =(BlockSpoutingRecipe) ((ProcessingRecipe<?,?>) r.value());
                         return bsr.testBlock(level.getBlockState(worldPosition.below(2))) && bsr.getRequiredFluid().test(getCurrentFluidInTank());
                     })
-                    .map(r->(BlockSpoutingRecipe) ((ProcessingRecipe<?>) r.value()))
+                    .map(r->(BlockSpoutingRecipe) ((ProcessingRecipe<?,?>) r.value()))
                     .findFirst();
 
             if (foundRecipe.isEmpty()){

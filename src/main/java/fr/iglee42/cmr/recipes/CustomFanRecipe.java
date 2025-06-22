@@ -4,11 +4,14 @@ import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import fr.iglee42.cmr.init.CMRRecipeTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -18,13 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
-public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanWrapper> {
-    public CustomFanRecipe(ProcessingRecipeBuilder.ProcessingRecipeParams params) {
+public class CustomFanRecipe extends StandardProcessingRecipe<CustomFanRecipe.CustomFanWrapper> {
+    public CustomFanRecipe(ProcessingRecipeParams params) {
         super(CMRRecipeTypes.CUSTOM_FAN, params);
     }
 
+    @Override
     public boolean matches(CustomFanWrapper inv, Level worldIn) {
-        return inv.isEmpty() ? false : ((Ingredient)this.ingredients.get(0)).test(inv.getItem(0));
+        if (inv.isEmpty())
+            return false;
+        return ingredients.get(0)
+                .test(inv.getItem(0));
     }
 
     public boolean matches(CustomFanWrapper inv, Level worldIn,Block block) {

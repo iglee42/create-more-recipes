@@ -7,6 +7,7 @@ import com.simibubi.create.content.kinetics.fan.processing.AllFanProcessingTypes
 import com.simibubi.create.content.kinetics.fan.processing.FanProcessingType;
 import com.simibubi.create.content.kinetics.fan.processing.FanProcessingTypeRegistry;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.recipe.RecipeApplier;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import fr.iglee42.cmr.CreateMoreRecipes;
@@ -79,7 +80,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
         public boolean isValidAt(Level level, BlockPos blockPos) {
             Block block = level.getBlockState(blockPos).getBlock();
             return level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().anyMatch(r->{
-                ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
+                StandardProcessingRecipe<?> r1 = (StandardProcessingRecipe<?>) r.value();
                 CustomFanRecipe r2 = (CustomFanRecipe) r1;
                 return r2.getProcessingBlock().contains(block);
             });
@@ -130,7 +131,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance))){
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos,level,fanDir, (int) entityDistance)).getBlock();
                 return level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().anyMatch(r->{
-                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
+                    StandardProcessingRecipe<?> r1 = (StandardProcessingRecipe<?>) r.value();
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
                     return r2.matches(new CustomFanRecipe.CustomFanWrapper(handler),level,block);
                 });
@@ -165,7 +166,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
             if (isValidAt(level,CreateMoreRecipes.getPosOfCatalyst(fanPos,level,dir, (int) entityDistance))) {
                 Block block = level.getBlockState(CreateMoreRecipes.getPosOfCatalyst(fanPos, level, dir, (int) entityDistance)).getBlock();
                 Optional<RecipeHolder<Recipe<RecipeInput>>> recipe = level.getRecipeManager().getAllRecipesFor(CMRRecipeTypes.CUSTOM_FAN.getType()).stream().filter(r -> {
-                    ProcessingRecipe<?> r1 = (ProcessingRecipe<?>) r.value();
+                    StandardProcessingRecipe<?> r1 = (StandardProcessingRecipe<?>) r.value();
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
                     return r2.matches(new CustomFanRecipe.CustomFanWrapper(handler),level,block);
                 }).findFirst();

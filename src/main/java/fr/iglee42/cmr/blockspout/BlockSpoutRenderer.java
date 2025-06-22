@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import fr.iglee42.cmr.init.CMRPartials;
+import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.createmod.catnip.render.CachedBuffers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -47,10 +48,8 @@ public class BlockSpoutRenderer extends SmartBlockEntityRenderer<BlockSpoutBlock
             if (!top) ms.translate(0, yOffset, 0);
             else ms.translate(0, max - min, 0);
 
-            FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(),
-                    min, min - yOffset, min,
-                    max, min, max,
-                    buffer, ms, light, false, true, fluidStack.getComponentsPatch());
+            NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, min, min - yOffset, min, max, min,
+                    max, buffer, ms, light, false, true);
 
             ms.popPose();
         }
