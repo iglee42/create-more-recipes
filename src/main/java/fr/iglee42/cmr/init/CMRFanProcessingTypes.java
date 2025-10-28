@@ -166,7 +166,7 @@ public class CMRFanProcessingTypes extends AllFanProcessingTypes {
                     CustomFanRecipe r2 = (CustomFanRecipe) r1;
                     return r2.matches(new CustomFanRecipe.CustomFanWrapper(handler),level,block);
                 }).findFirst();
-                return recipe.isPresent() ? RecipeApplier.applyRecipeOn(level, itemStack, recipe.get()) : null;
+                return recipe.isPresent() ? RecipeApplier.applyRecipeOn(level, itemStack, recipe.get(),false) : null;
             }
             return null;
         }

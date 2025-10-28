@@ -7,6 +7,7 @@ import com.simibubi.create.content.kinetics.press.MechanicalPressBlock;
 import com.simibubi.create.content.kinetics.press.MechanicalPressBlockEntity;
 import com.simibubi.create.content.kinetics.press.PressingBehaviour;
 import dev.engine_room.flywheel.api.instance.Instance;
+import dev.engine_room.flywheel.api.visual.DynamicVisual;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.instance.InstanceTypes;
 import dev.engine_room.flywheel.lib.instance.OrientedInstance;
@@ -35,12 +36,12 @@ public class SmithingPressVisual extends ShaftVisual<SmithingPressBlockEntity> i
 		transformModels(partialTick);
 	}
 
-	@Override
-	public void beginFrame(Context ctx) {
-		transformModels(ctx.partialTick());
-	}
+    @Override
+    public void beginFrame(DynamicVisual.Context ctx) {
+        transformModels(ctx.partialTick());
+    }
 
-	private void transformModels(float pt) {
+    private void transformModels(float pt) {
 		float renderedHeadOffset = getRenderedHeadOffset(pt);
 
 		pressHead.position(getVisualPosition())
