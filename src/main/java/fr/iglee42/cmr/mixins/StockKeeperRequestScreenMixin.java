@@ -9,7 +9,6 @@ import com.simibubi.create.content.logistics.stockTicker.*;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.content.processing.burner.BlazeBurnerRenderer;
-import com.simibubi.create.foundation.gui.ScreenWithStencils;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import fr.iglee42.cmr.cooler.SnowmanCoolerBlock;
@@ -42,8 +41,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 @Mixin(value = StockKeeperRequestScreen.class,remap = false)
-public class StockKeeperRequestScreenMixin extends AbstractSimiContainerScreen<StockKeeperRequestMenu>
-        implements ScreenWithStencils {
+public class StockKeeperRequestScreenMixin extends AbstractSimiContainerScreen<StockKeeperRequestMenu> {
 
     @Shadow private StockTickerBlockEntity blockEntity;
     @Shadow private int windowHeight;

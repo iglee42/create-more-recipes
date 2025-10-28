@@ -50,6 +50,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static mezz.jei.api.recipe.RecipeType.createRecipeHolderType;
+
 @JeiPlugin
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
@@ -264,7 +266,7 @@ public class CMRJEI implements IModPlugin {
 			}
 
 			CreateRecipeCategory.Info<T> info = new CreateRecipeCategory.Info<>(
-					new mezz.jei.api.recipe.RecipeType<>(CreateMoreRecipes.asResource(name), recipeClass),
+                    createRecipeHolderType(CreateMoreRecipes.asResource(name)),
 					CreateLang.translateDirect("recipe." + name), background, icon, recipesSupplier, catalysts);
 			CreateRecipeCategory<T> category = factory.create(info);
 			allCategories.add(category);

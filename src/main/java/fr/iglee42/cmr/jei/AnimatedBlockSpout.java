@@ -14,6 +14,7 @@ import fr.iglee42.cmr.init.CMRPartials;
 import fr.iglee42.cmr.init.CMRRegistries;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.gui.UIRenderHelper;
+import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -76,15 +77,18 @@ public class AnimatedBlockSpout extends AnimatedKinetics {
 				.render(graphics);
 
 		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
-		matrixStack.pushPose();
-		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale(16, 16, 16);
-		float from = 3f / 16f;
-		float to = 17f / 16f;
-		FluidStack fluidStack = fluids.get(0);
-		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, from, from, to, to, to, graphics.bufferSource(), matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getComponentsPatch());
-		matrixStack.popPose();
-		Lighting.setupFor3DItems();
+        matrixStack.pushPose();
+        UIRenderHelper.flipForGuiRender(matrixStack);
+        matrixStack.scale(16, 16, 16);
+        float from = 3f / 16f;
+        float to = 17f / 16f;
+        FluidStack fluidStack = fluids.get(0);
+        NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, from, from, from, to, to, to, graphics.bufferSource(), matrixStack, LightTexture.FULL_BRIGHT, false, true);
+        matrixStack.popPose();
+
+        Lighting.setupFor3DItems();
+
+        matrixStack.popPose();
 
 		matrixStack.popPose();
 	}

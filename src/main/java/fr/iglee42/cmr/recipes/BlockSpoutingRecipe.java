@@ -1,22 +1,22 @@
 package fr.iglee42.cmr.recipes;
 
-import java.util.List;
-
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.foundation.fluid.FluidIngredient;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.utility.BlockHelper;
-
 import fr.iglee42.cmr.init.CMRRecipeTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
-public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
+import java.util.List;
+
+public class BlockSpoutingRecipe extends StandardProcessingRecipe<RecipeWrapper> {
 
 	public BlockSpoutingRecipe(ProcessingRecipeParams params) {
 		super(CMRRecipeTypes.BLOCK_SPOUTING, params);
@@ -34,9 +34,9 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 						.asItem()));
 	}
 
-	public BlockState transformBlock(BlockState in) {
+	public BlockState transformBlock(BlockState in,RandomSource randomSource) {
 		ProcessingOutput mainOutput = results.get(0);
-		ItemStack output = mainOutput.rollOutput();
+		ItemStack output = mainOutput.rollOutput(randomSource);
 		if (output.getItem() instanceof BlockItem bi)
 			return BlockHelper.copyProperties(in, bi.getBlock()
 					.defaultBlockState());
@@ -58,17 +58,16 @@ public class BlockSpoutingRecipe extends ProcessingRecipe<RecipeWrapper> {
 		return 1;
 	}
 
-	public FluidIngredient getRequiredFluid() {
-		if (fluidIngredients.isEmpty())
-			throw new IllegalStateException("Filling Recipe: " + id.toString() + " has no fluid ingredient!");
-		return fluidIngredients.get(0);
-	}
+    public SizedFluidIngredient getRequiredFluid() {
+        if (fluidIngredients.isEmpty())
+            throw new IllegalStateException("Filling Recipe has no fluid ingredient!");
+        return fluidIngredients.get(0);
+    }
 
-
-	@Override
-	public List<ItemStack> rollResults() {
-		return rollResults(getRollableResultsExceptBlock());
-	}
+    @Override
+    public List<ItemStack> rollResults(RandomSource randomSource) {
+        return rollResults(getRollableResultsExceptBlock(),randomSource);
+    }
 
 	public List<ProcessingOutput> getRollableResultsExceptBlock() {
 		ProcessingOutput mainOutput = results.get(0);

@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
@@ -62,8 +63,8 @@ public class BlockSpoutCategory extends CreateRecipeCategory<BlockSpoutingRecipe
 		BlockState state = blockItem.getBlock()
 				.defaultBlockState();
 
-		spout.withState(state).withFluids(recipe.getRequiredFluid()
-						.getMatchingFluidStacks())
+		spout.withState(state).withFluids(List.of(recipe.getRequiredFluid()
+                        .getFluids()))
 				.draw(graphics, getBackground().getWidth() / 2 - 13, 22);
 
 	}

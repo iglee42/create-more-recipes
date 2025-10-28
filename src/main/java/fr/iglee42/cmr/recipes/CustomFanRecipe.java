@@ -1,25 +1,25 @@
 package fr.iglee42.cmr.recipes;
 
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.simibubi.create.foundation.fluid.FluidIngredient;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import fr.iglee42.cmr.init.CMRRecipeTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
-public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanWrapper> {
-    public CustomFanRecipe(ProcessingRecipeBuilder.ProcessingRecipeParams params) {
+public class CustomFanRecipe extends StandardProcessingRecipe<CustomFanRecipe.CustomFanWrapper> {
+    public CustomFanRecipe(ProcessingRecipeParams params) {
         super(CMRRecipeTypes.CUSTOM_FAN, params);
     }
 
@@ -39,8 +39,8 @@ public class CustomFanRecipe extends ProcessingRecipe<CustomFanRecipe.CustomFanW
                 blocks.add(bi.getBlock());
             }
         }
-        for (FluidIngredient fluid : fluidIngredients){
-            blocks.addAll(fluid.getMatchingFluidStacks().stream().map(f->f.getFluid().defaultFluidState().createLegacyBlock().getBlock()).toList());
+        for (SizedFluidIngredient fluid : fluidIngredients){
+            blocks.addAll(Arrays.stream(fluid.getFluids()).map(f->f.getFluid().defaultFluidState().createLegacyBlock().getBlock()).toList());
         }
         return blocks;
     }
