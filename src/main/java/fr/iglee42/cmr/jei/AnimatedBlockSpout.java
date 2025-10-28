@@ -15,6 +15,7 @@ import fr.iglee42.cmr.init.CMRRegistries;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.gui.UIRenderHelper;
 import net.createmod.catnip.platform.NeoForgeCatnipServices;
+import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -87,8 +88,6 @@ public class AnimatedBlockSpout extends AnimatedKinetics {
         matrixStack.popPose();
 
         Lighting.setupFor3DItems();
-
-        matrixStack.popPose();
 
 		matrixStack.popPose();
 	}
